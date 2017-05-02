@@ -30,6 +30,5 @@ def Crawler(crawled_pages=set(),
         crawled_pages.add(next_page_to_crawl)
         next_pages_to_crawl.union(pages_to_crawl)
         yield links_to_files_of_interest
-    else: raise StopIteration()
 
 for file_links in Crawler(): print(file_links)
