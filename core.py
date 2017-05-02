@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 file_types_of_interest = ["ass", "srt"]
 
