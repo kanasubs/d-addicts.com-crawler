@@ -15,8 +15,8 @@ def download_file(link):
 
 def get_http_links(page_content):
     """STUB"""
-    return ["http://www.d-addicts.com/forums/download/file.php?id=51630",
-            "http://www.d-addicts.com/forums/some_topic"]
+    return {"http://www.d-addicts.com/forums/download/file.php?id=51630",
+            "http://www.d-addicts.com/forums/some_topic"}
 
 def crawl(page):
     return get_http_links(download_file(page))
