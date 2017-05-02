@@ -23,9 +23,9 @@ def crawl(page):
 
 class Crawler(object):
     def __init__(self,
-                 crawled_links=set(),
+                 crawled_pages=set(),
                  next_pages_to_crawl={"http://www.d-addicts.com/forums/page/subtitles#Japanese"}):
-        self.crawled_links = crawled_links
+        self.crawled_pages = crawled_pages
         self.next_pages_to_crawl = next_pages_to_crawl
 
     def __iter__(self):
@@ -34,14 +34,14 @@ class Crawler(object):
     def __next__(self):
         if self.next_pages_to_crawl:
             next_page_to_crawl = self.next_pages_to_crawl.pop()
-            links = crawl(next_page_to_crawl)
+            links = crawl(next_page_to_crawl) # TODO try this
             (links_to_files_of_interest, pages_to_crawl) = separate_files_from_pages(links)
-            # todo pages_to_crawl -= self.crawled_links
-            self.crawled_links.add(next_page_to_crawl) # fixme use set op instead
+            pages_to_crawl -= self.crawled_pages
+            self.crawled_pages.add(next_page_to_crawl) # fixme use set op instead
             self.next_pages_to_crawl.union(pages_to_crawl)
             return links_to_files_of_interest
         else:
             raise StopIteration()
 
-for link in Crawler():
-    print(link)
+for file_links in Crawler():
+    print(file_links)
