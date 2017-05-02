@@ -13,13 +13,12 @@ def download_file(link):
            http://www.d-addicts.com/forums/download/file.php?id=51630
            http://www.d-addicts.com/forums/some_topic"""
 
-def get_http_links(page_content):
+def extract_http_links(page_content):
     """STUB"""
     return {"http://www.d-addicts.com/forums/download/file.php?id=51630",
             "http://www.d-addicts.com/forums/some_topic"}
 
-def crawl(page):
-    return get_http_links(download_file(page))
+def crawl(page): return extract_http_links(download_file(page))
 
 class Crawler(object):
     def __init__(self,
@@ -28,8 +27,7 @@ class Crawler(object):
         self.crawled_pages = crawled_pages
         self.next_pages_to_crawl = next_pages_to_crawl
 
-    def __iter__(self):
-        return self
+    def __iter__(self): return self
 
     def __next__(self):
         if self.next_pages_to_crawl:
@@ -40,8 +38,6 @@ class Crawler(object):
             self.crawled_pages.add(next_page_to_crawl) # fixme use set op instead
             self.next_pages_to_crawl.union(pages_to_crawl)
             return links_to_files_of_interest
-        else:
-            raise StopIteration()
+        else: raise StopIteration()
 
-for file_links in Crawler():
-    print(file_links)
+for file_links in Crawler(): print(file_links)
