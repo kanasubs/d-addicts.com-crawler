@@ -30,7 +30,7 @@ def Crawler(crawled_links=set(),
             (links_to_files_of_interest, pages_to_crawl) = separate_files_from_pages(links)
             links_to_files_of_interest -= crawled_links
             pages_to_crawl -= crawled_links
-            next_pages_to_crawl.union(pages_to_crawl)
+            next_pages_to_crawl |= pages_to_crawl
         except Exception: pass
         crawled_links |= links_to_files_of_interest
         crawled_links.add(next_page_to_crawl)
