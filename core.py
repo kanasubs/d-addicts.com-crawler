@@ -20,7 +20,7 @@ def extract_http_links(page_content):
 
 def crawl(page): return extract_http_links(download_file(page))
 
-def Crawler(crawled_pages=set(),
+def Crawler(crawled_links=set(),
             next_pages_to_crawl={"http://www.d-addicts.com/forums/page/subtitles#Japanese"}):
     links_to_files_of_interest = set()
     if next_pages_to_crawl:
@@ -28,10 +28,12 @@ def Crawler(crawled_pages=set(),
         try:
             links = crawl(next_page_to_crawl)
             (links_to_files_of_interest, pages_to_crawl) = separate_files_from_pages(links)
-            pages_to_crawl -= crawled_pages
+            links_to_files_of_interest -= crawled_links
+            pages_to_crawl -= crawled_links
             next_pages_to_crawl.union(pages_to_crawl)
         except Exception: pass
-        crawled_pages.add(next_page_to_crawl)
+        crawled_links |= links_to_files_of_interest
+        crawled_links.add(next_page_to_crawl)
         yield links_to_files_of_interest
 
 for file_links in Crawler(): print(file_links)
