@@ -3,7 +3,7 @@
 import unittest
 from core import *
 
-class TestTopLevel(unittest.TestCase):
+class TopLevelTest(unittest.TestCase):
 
     def test_tag_file_or_page_link(self):
         self.assertEqual(tag_file_or_page_link('d.com/file.php?id='), 'subs')
@@ -19,6 +19,20 @@ class TestTopLevel(unittest.TestCase):
         self.assertEqual(group_links(["d.co/p1"]).get('subs'), [])
         self.assertEqual(group_links(["d.co/file.php?id="]).get('pages'), [])
         self.assertEqual(group_links(["d.co/p1"]).get('pages'), ["d.co/p1"])
+
+class PageStoreTest(unittest.TestCase):
+    def test_page_store(self):
+        default_page_store = PageStore()
+        assert default_page_store.has()
+        assert default_page_store.pop()
+        self.assertFalse(default_page_store.has())
+        default_page_store = PageStore()
+        assert default_page_store.has()
+        page_store = PageStore({"d.co/p1"})
+        self.assertEqual(page_store.pop(), "d.co/p1")
+        self.assertFalse(page_store.has())
+        page_store.update({"d.co/p2"})
+        self.assertEqual(page_store.pop(), "d.co/p2")
 
 if __name__ == '__main__':
     with unittest.main() as main: pass

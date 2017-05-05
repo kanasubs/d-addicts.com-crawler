@@ -38,8 +38,10 @@ def extract_http_links(page_content):
 def crawl(page): return extract_http_links(download_file(page))
 
 class PageStore():
-    def __init__(self, next_pages_to_crawl={"http://www.d-addicts.com/forums/page/subtitles#Japanese"}):
-        self.next_pages_to_crawl = next_pages_to_crawl
+    def __init__(self, next_pages_to_crawl=None):
+        if next_pages_to_crawl:
+            self.next_pages_to_crawl = next_pages_to_crawl
+        else: self.next_pages_to_crawl = {"http://www.d-addicts.com/forums/page/subtitles#Japanese"}
         self.crawled_links = set()
 
     def has(self): return bool(self.next_pages_to_crawl)
