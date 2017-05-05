@@ -1,11 +1,28 @@
 #!/usr/bin/env python3
 
+from itertools import groupby
+
+def unsorted_group_by(coll, fn):
+    sorted_coll = sorted(coll, key=fn)
+    group_pairs = groupby(sorted_coll, fn)
+    groups = {}
+    for k,v in group_pairs:
+        groups[k] = list(v)
+    return groups
+
 file_types_of_interest = ["ass", "srt"]
 
-def separate_files_from_pages(links):
-    """STUB"""
-    return ({"http://www.d-addicts.com/forums/download/file.php?id=51630"},
-            {"http://www.d-addicts.com/forums/some_topic"})
+def tag_file_or_page_link(link):
+    if 'file.php?id=' in link:
+        return 'subs'
+    else:
+        return 'pages'
+
+def group_links(links):
+    grouped_links = unsorted_group_by(links, tag_file_or_page_link)
+    grouped_links.setdefault('subs', [])
+    grouped_links.setdefault('pages', [])
+    return grouped_links
 
 def download_file(link):
     """STUB"""
@@ -57,10 +74,10 @@ class Crawler:
         if self.page_store.has():
             try:
                 links = crawl(self.page_store.pop())
-                (links_to_files_of_interest, pages_to_crawl) = separate_files_from_pages(links)
-                self.page_store.update(pages_to_crawl)
+                link_groups = group_links(links)
+                self.page_store.update(link_groups['pages'])
+                links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
             except Exception: pass
-            links_to_files_of_interest = self.file_link_store.update(links_to_files_of_interest)
             return links_to_files_of_interest
         else: raise StopIteration()
 
