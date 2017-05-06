@@ -34,5 +34,13 @@ class PageStoreTest(unittest.TestCase):
         page_store.update({"d.co/p2"})
         self.assertEqual(page_store.pop(), "d.co/p2")
 
+class FileLinkStoreTest(unittest.TestCase):
+    def test_file_link_store(self):
+        file_link_store = FileLinkStore()
+        links = file_link_store.update({'d.co/file.php?id=1'})
+        self.assertSetEqual(links, {'d.co/file.php?id=1'})
+        links = file_link_store.update({'d.co/file.php?id=1', 'd.co/file.php?id=2'})
+        self.assertSetEqual(links, {'d.co/file.php?id=2'})
+
 if __name__ == '__main__':
     with unittest.main() as main: pass
