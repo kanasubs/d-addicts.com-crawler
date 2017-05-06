@@ -20,8 +20,8 @@ def tag_file_or_page_link(link):
 
 def group_links(links):
     grouped_links = unsorted_group_by(links, tag_file_or_page_link)
-    grouped_links.setdefault('subs', [])
-    grouped_links.setdefault('pages', [])
+    grouped_links['subs'] = set(grouped_links.get('subs') or set())
+    grouped_links['pages'] = set(grouped_links.get('pages') or set())
     return grouped_links
 
 def download_file(link):
