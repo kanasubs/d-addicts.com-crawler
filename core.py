@@ -2,7 +2,6 @@
 
 from itertools import groupby
 from bs4 import BeautifulSoup  # TODO needs setup pip3 install beautifulsoup4
-from bs4.element import Tag
 import urllib.request
 
 def unsorted_group_by(coll, fn):
