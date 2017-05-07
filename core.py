@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from itertools import groupby
+import urllib.request
 
 def unsorted_group_by(coll, fn):
     sorted_coll = sorted(coll, key=fn)
@@ -24,18 +25,14 @@ def group_links(links):
     grouped_links['pages'] = set(grouped_links.get('pages') or set())
     return grouped_links
 
-def download_file(link):
-    """STUB"""
-    return """dummy_content
-           http://www.d-addicts.com/forums/download/file.php?id=51630
-           http://www.d-addicts.com/forums/some_topic"""
-
 def extract_http_links(page_content):
     """STUB"""
     return {"http://www.d-addicts.com/forums/download/file.php?id=51630",
             "http://www.d-addicts.com/forums/some_topic"}
 
 def crawl(page): return extract_http_links(download_file(page))
+def download(link):
+    return urllib.request.urlopen(link).read()
 
 class PageStore():
     def __init__(self, next_pages_to_crawl=None):
