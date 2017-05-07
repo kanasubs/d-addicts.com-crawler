@@ -35,10 +35,8 @@ def download(link):
     return urllib.request.urlopen(link).read()
 
 class PageStore():
-    def __init__(self, next_pages_to_crawl=None):
-        if next_pages_to_crawl:
-            self.next_pages_to_crawl = next_pages_to_crawl
-        else: self.next_pages_to_crawl = {"http://www.d-addicts.com/forums/page/subtitles#Japanese"}
+    def __init__(self, next_pages_to_crawl):
+        self.next_pages_to_crawl = next_pages_to_crawl
         self.crawled_links = set()
 
     def has(self): return bool(self.next_pages_to_crawl)
@@ -61,9 +59,9 @@ class FileLinkStore():
         self.visited_links_of_interesting_files |= links_to_files_of_interest
         return links_to_files_of_interest
 
-    def __init__(self):
-        self.page_store = PageStore()
 class Spider:
+    def __init__(self, links):
+        self.page_store = PageStore(links)
         self.file_link_store = FileLinkStore()
 
     def __iter__(self): return self
@@ -76,7 +74,27 @@ class Spider:
                 link_groups = group_links(links)
                 self.page_store.update(link_groups['pages'])
                 links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
-            except Exception: pass
+            except Exception:
+                pass
+            return links_to_files_of_interest
+        else: raise StopIteration()
+
+class DAddictsSpider:
+    def __init__(self):
+        self.topic_links = crawl("http://www.d-addicts.com/forums/page/subtitles#Japanese")
+        self.file_link_store = FileLinkStore()
+
+    def __iter__(self): return self
+
+    def __next__(self):
+        links_to_files_of_interest = set()
+        if self.topic_links:
+            try:
+                links = crawl(self.topic_links.pop())
+                link_groups = group_links(links)
+                links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
+            except Exception:
+                pass
             return links_to_files_of_interest
         else: raise StopIteration()
 
