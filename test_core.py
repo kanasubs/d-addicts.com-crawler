@@ -29,12 +29,6 @@ class TopLevelTest(unittest.TestCase):
 
 class PageStoreTest(unittest.TestCase):
     def test_page_store(self):
-        default_page_store = PageStore()
-        assert default_page_store.has()
-        assert default_page_store.pop()
-        self.assertFalse(default_page_store.has())
-        default_page_store = PageStore()
-        assert default_page_store.has()
         page_store = PageStore({"d.co/p1"})
         self.assertEqual(page_store.pop(), "d.co/p1")
         self.assertFalse(page_store.has())
