@@ -61,9 +61,9 @@ class FileLinkStore():
         self.visited_links_of_interesting_files |= links_to_files_of_interest
         return links_to_files_of_interest
 
-class Crawler:
     def __init__(self):
         self.page_store = PageStore()
+class Spider:
         self.file_link_store = FileLinkStore()
 
     def __iter__(self): return self
@@ -80,4 +80,4 @@ class Crawler:
             return links_to_files_of_interest
         else: raise StopIteration()
 
-for file_links in Crawler(): print(file_links)
+#for file_links in Spider(): print(file_links)
