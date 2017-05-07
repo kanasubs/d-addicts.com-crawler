@@ -30,13 +30,15 @@ def extract_http_links(page_content):
     return {"http://www.d-addicts.com/forums/download/file.php?id=51630",
             "http://www.d-addicts.com/forums/some_topic"}
 
-def crawl(page): return extract_http_links(download_file(page))
 def download(link):
     return urllib.request.urlopen(link).read()
 
 def filter_useful_links(links):
     """PASSTHROUGH STUB"""
     return links
+
+def crawl(link):
+    return filter_useful_links(extract_http_links(download(link)))
 
 class PageStore():
     def __init__(self, next_pages_to_crawl):
