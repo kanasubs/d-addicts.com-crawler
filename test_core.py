@@ -11,14 +11,21 @@ class TopLevelTest(unittest.TestCase):
 
     def test_unsorted_group_by(self):
         links = {"d.com/1file.php?id=", "d.com/page1", "d.com/page2"}
-        self.assertDictEqual(unsorted_group_by(links, tag_file_or_page_link),
-                             {'subs': ["d.com/1file.php?id="],
-                              'pages': ["d.com/page1", "d.com/page2"]})
+        self.assertCountEqual(unsorted_group_by(links, tag_file_or_page_link),
+                              {'subs': ["d.com/1file.php?id="],
+                               'pages': ["d.com/page1", "d.com/page2"]})
 
     def test_group_links(self):
         self.assertSetEqual(group_links({"d.co/p1"}).get('subs'), set())
         self.assertSetEqual(group_links({"d.co/file.php?id="}).get('pages'), set())
         self.assertSetEqual(group_links({"d.co/p1"}).get('pages'), {"d.co/p1"})
+
+    def test_d_addicts_extract_http_links(self):
+        with open('tests/resources/d_addicts_base_page.html') as f:
+            links = d_addicts_extract_http_links(f.read())
+            self.assertGreater(len(links), 543)
+            for link in links:
+                self.assertIn('www.d-addicts.com/forums/viewtopic.php?t=', link)
 
 class PageStoreTest(unittest.TestCase):
     def test_page_store(self):

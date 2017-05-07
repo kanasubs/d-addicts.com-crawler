@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from itertools import groupby
+from bs4 import BeautifulSoup  # TODO needs setup pip3 install beautifulsoup4
+from bs4.element import Tag
 import urllib.request
 
 def unsorted_group_by(coll, fn):
@@ -25,13 +27,21 @@ def group_links(links):
     grouped_links['pages'] = set(grouped_links.get('pages') or set())
     return grouped_links
 
-def extract_http_links(page_content):
-    """STUB"""
-    return {"http://www.d-addicts.com/forums/download/file.php?id=51630",
-            "http://www.d-addicts.com/forums/some_topic"}
-
 def download(link):
     return urllib.request.urlopen(link).read()
+
+def d_addicts_extract_http_links(html_page):
+    soup = BeautifulSoup(html_page, "html5lib")
+    links = set()
+    jp_subs_heading = soup.find('h3', text='Japanese Subtitles')
+    next_sibling = jp_subs_heading.next_sibling
+    while next_sibling:
+        jp_subs_link = next_sibling.find('a')
+        if jp_subs_link and jp_subs_link != -1:
+            jp_subs_href = jp_subs_link.get('href')
+            links.add(jp_subs_href)
+        next_sibling = next_sibling.next_sibling
+    return links
 
 def filter_useful_links(links):
     """PASSTHROUGH STUB"""
