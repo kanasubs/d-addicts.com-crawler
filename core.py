@@ -34,6 +34,10 @@ def crawl(page): return extract_http_links(download_file(page))
 def download(link):
     return urllib.request.urlopen(link).read()
 
+def filter_useful_links(links):
+    """PASSTHROUGH STUB"""
+    return links
+
 class PageStore():
     def __init__(self, next_pages_to_crawl):
         self.next_pages_to_crawl = next_pages_to_crawl
