@@ -45,7 +45,7 @@ def filter_useful_links(links):
     return links
 
 def crawl(link):
-    return filter_useful_links(extract_http_links(download(link)))
+    return filter_useful_links(d_addicts_extract_http_links(download(link)))
 
 class PageStore():
     def __init__(self, next_pages_to_crawl):
