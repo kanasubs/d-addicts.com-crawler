@@ -28,13 +28,13 @@ def download(link):
     return urllib.request.urlopen(link).read()
 
 def d_addicts_extract_http_links(html_page):
-    soup = BeautifulSoup(html_page, "html5lib")
+    soup = BeautifulSoup(html_page, "html5lib") # TODO add html5lib to setup
     links = set()
     jp_subs_heading = soup.find('h3', text='Japanese Subtitles')
     next_sibling = jp_subs_heading.next_sibling
     while next_sibling:
         jp_subs_link = next_sibling.find('a')
-        if jp_subs_link and jp_subs_link != -1:
+        if jp_subs_link and jp_subs_link != -1: # TODO search why find returns -1
             jp_subs_href = jp_subs_link.get('href')
             links.add(jp_subs_href)
         next_sibling = next_sibling.next_sibling
