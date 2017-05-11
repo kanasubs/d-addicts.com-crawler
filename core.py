@@ -15,10 +15,8 @@ def unsorted_group_by(coll, fn):
 file_types_of_interest = ["ass", "srt"]
 
 def tag_file_or_page_link(link):
-    if 'file.php?id=' in link:
-        return 'subs'
-    else:
-        return 'pages'
+    if 'file.php?id=' in link: return 'subs'
+    else:                      return 'pages'
 
 def group_links(links):
     grouped_links = unsorted_group_by(links, tag_file_or_page_link)
@@ -89,8 +87,7 @@ class Spider:
                 link_groups = group_links(links)
                 self.page_store.update(link_groups['pages'])
                 links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
-            except Exception:
-                pass
+            except Exception: pass
             return links_to_files_of_interest
         else: raise StopIteration()
 
@@ -108,8 +105,7 @@ class DAddictsSpider:
                 links = crawl(self.topic_links.pop())
                 link_groups = group_links(links)
                 links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
-            except Exception:
-                pass
+            except Exception: pass
             return links_to_files_of_interest
         else: raise StopIteration()
 
