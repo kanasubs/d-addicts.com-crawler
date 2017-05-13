@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
 import unittest
+from unittest import TestCase
+from unittest.mock import patch
+from reppy.robots import Robots
+from reppy.exceptions import ReppyException
 from core import *
 
-class TopLevelTest(unittest.TestCase):
+class FakeRobots():
+    def fetch(self, url): raise(ReppyException())
+
+class TopLevelTest(TestCase):
 
     def test_tag_file_or_page_link(self):
         self.assertEqual(tag_file_or_page_link('d.com/file.php?id='), 'subs')
@@ -27,7 +34,13 @@ class TopLevelTest(unittest.TestCase):
             for link in links:
                 self.assertIn('www.d-addicts.com/forums/viewtopic.php?t=', link)
 
-class PageStoreTest(unittest.TestCase):
+    def test_get_delay(self): # TODO impl. monad either to properly test right/left branching
+        self.assertGreaterEqual(get_delay('http://www.d-addicts.com'), 0)
+        with patch('core.Robots', new_callable=FakeRobots):
+            self.assertEqual(get_delay('http://www.d-addicts.com'),
+                             d_addicts_crawler_default_delay)
+
+class PageStoreTest(TestCase):
     def test_page_store(self):
         page_store = PageStore({"d.co/p1"})
         self.assertEqual(page_store.pop(), "d.co/p1")
@@ -35,7 +48,7 @@ class PageStoreTest(unittest.TestCase):
         page_store.update({"d.co/p2"})
         self.assertEqual(page_store.pop(), "d.co/p2")
 
-class FileLinkStoreTest(unittest.TestCase):
+class FileLinkStoreTest(TestCase):
     def test_file_link_store(self):
         file_link_store = FileLinkStore()
         links = file_link_store.update({'d.co/file.php?id=1'})
