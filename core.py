@@ -8,6 +8,7 @@ from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 from time import sleep
 from abc import ABC, abstractmethod
+import re
 
 def unsorted_group_by(coll, fn):
     sorted_coll = sorted(coll, key=fn)
@@ -109,9 +110,16 @@ class DAddictsSpider(AbstractSpider):
         self.file_link_store = FileLinkStore()
         self.delay = delay
 
-    @staticmethod
-    def extract_links_of_interest(html_page):
-        return extract_topic_links(html_page)
+    _file_of_interest_subs = 'file.php?id='
+    _file_of_interest_pattern = re.compile(re.escape(_file_of_interest_subs))
+
+    @classmethod
+    def _extract_links_of_interest(cls, html_page):
+        soup = BeautifulSoup(html_page, "html5lib") # TODO add html5lib to setup
+        links = set()
+        for link in soup.find_all('a', href=cls._file_of_interest_pattern):
+            links.add(link['href'])
+        return links
 
     @staticmethod
     def extract_topic_links(html_page):

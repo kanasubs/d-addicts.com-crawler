@@ -52,6 +52,13 @@ class DAddictsSpiderTest(unittest.TestCase):
             for link in links:
                 self.assertIn('www.d-addicts.com/forums/viewtopic.php?t=', link)
 
+    def test_extract_links_of_interest(self):
+        with open('tests/resources/viewtopic.php?t=99358') as f:
+            links = DAddictsSpider._extract_links_of_interest(f.read())
+            self.assertGreater(len(links), 10)
+            for link in links:
+                self.assertIn(DAddictsSpider._file_of_interest_subs, link)
+
     def test_get_delay(self): # TODO impl. monad either to properly test right/left branching
         self.assertGreaterEqual(DAddictsSpider.get_delay('http://www.d-addicts.com'), 0)
         with patch('core.Robots', new_callable=FakeRobots):
