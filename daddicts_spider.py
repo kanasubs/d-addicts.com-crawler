@@ -155,3 +155,8 @@ class DAddictsSpider(AbstractSpider):
             except Exception: pass
             return links_to_files_of_interest
         else: raise StopIteration()
+
+if __name__ == '__main__':
+    for sub_links in DAddictsSpider():
+        for sub_link in sub_links:
+            print(sub_link)

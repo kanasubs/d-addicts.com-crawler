@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
 import unittest
 from unittest import TestCase
 from unittest.mock import patch
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
-from core import *
+from daddicts_spider import *
 
 class FakeRobots():
     def fetch(self, url): raise(ReppyException())
@@ -61,6 +59,6 @@ class DAddictsSpiderTest(unittest.TestCase):
 
     def test_get_delay(self): # TODO impl. monad either to properly test right/left branching
         self.assertGreaterEqual(DAddictsSpider.get_delay('http://www.d-addicts.com'), 0)
-        with patch('core.Robots', new_callable=FakeRobots):
+        with patch('daddicts_spider.Robots', new_callable=FakeRobots):
             self.assertEqual(DAddictsSpider.get_delay('http://www.d-addicts.com'),
                              DAddictsSpider.default_delay)
