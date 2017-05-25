@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from itertools import groupby
-from bs4 import BeautifulSoup  # TODO needs setup pip3 install beautifulsoup4
+from bs4 import BeautifulSoup
 import urllib.request
 from urllib.parse import urljoin
 from reppy.robots import Robots
@@ -117,7 +117,7 @@ class DAddictsSpider(AbstractSpider):
 
     @classmethod
     def _extract_links_of_interest(cls, html_page):
-        soup = BeautifulSoup(html_page, "html5lib") # TODO add html5lib to setup
+        soup = BeautifulSoup(html_page, "html5lib")
         links = set()
         for link in soup.find_all('a', href=cls._file_of_interest_pattern):
             links.add(link['href'])
@@ -125,7 +125,7 @@ class DAddictsSpider(AbstractSpider):
 
     @staticmethod
     def extract_topic_links(html_page):
-        soup = BeautifulSoup(html_page, "html5lib") # TODO add html5lib to setup
+        soup = BeautifulSoup(html_page, "html5lib")
         links = set()
         jp_subs_heading = soup.find('h3', text='Japanese Subtitles')
         next_sibling = jp_subs_heading.next_sibling
@@ -155,5 +155,3 @@ class DAddictsSpider(AbstractSpider):
             except Exception: pass
             return links_to_files_of_interest
         else: raise StopIteration()
-
-#for file_links in Spider(): print(file_links)

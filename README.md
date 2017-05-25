@@ -1,18 +1,22 @@
-# d-addicts.com-crawler
-A Python library to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
+  # d-addicts.com-crawler
+A Python web spider library to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
-## Input
-Optionally accepts a tuple of relative page links to [d-addicts.com](https://www.d-addicts.com/) that were crawled or are to be crawled - `(crawled_pages_list, next_pages_to_crawl_list)`.
-In case no tuple is provided, uses [http://www.d-addicts.com/forums/page/subtitles#Japanese](http://www.d-addicts.com/forums/page/subtitles#Japanese) instead.
-
-## Output
-```python
-links_from_first_page_found_to_have_links = [(link1, file_digest1), (link2, file_digest2) ..]
-crawled_pages_list = [(link1, page_digest1, changed_at), (link2, page_digest2, changed_at) ..]
-return (links_from_first_page_found_to_have_links, (crawled_pages_list, next_pages_to_crawl_list))
+## Install packages
 ```
-`file_digest` is last because it may be an optional return
-value for clients not interested in obtaining it. Use digest algorithm at your discretion.
+pip3 install beautifulsoup4 reppy html5lib
+```
+
+## Usage example
+```python
+from core import DAddictsSpider
+
+all_sub_links = set()
+delay_between_requests = 2 # optional to DAddictsSpider
+for sub_links in DAddictsSpider(delay_between_requests):
+  print(sub_links)
+  all_sub_links |= sub_links
+```
+This function can run for quite a bit, so feel free to interrupt the loop and use the links stored in `all_sub_links` so far.
 
 ## Testing
-1. TODO 
+`pip3 install nosetests` and then run `nosetests` in the project root directory.
