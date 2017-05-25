@@ -55,7 +55,7 @@ class DAddictsSpiderTest(unittest.TestCase):
     def test_extract_links_of_interest(self):
         with open('tests/resources/viewtopic.php?t=99358') as f:
             links = DAddictsSpider._extract_links_of_interest(f.read())
-            self.assertGreater(len(links), 10)
+            self.assertGreater(len(links), 8)
             for link in links:
                 self.assertIn(DAddictsSpider._file_of_interest_subs, link)
 
