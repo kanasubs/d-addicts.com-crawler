@@ -9,6 +9,7 @@ from reppy.exceptions import ReppyException
 from time import sleep
 from abc import ABC, abstractmethod
 import re
+import sys
 
 def unsorted_group_by(coll, fn):
     sorted_coll = sorted(coll, key=fn)
@@ -156,7 +157,14 @@ class DAddictsSpider(AbstractSpider):
             return links_to_files_of_interest
         else: raise StopIteration()
 
+def maybe_override_delay(cmd_line_args):
+    if len(cmd_line_args) > 1:
+        return int(sys.argv[1])
+
 if __name__ == '__main__':
-    for sub_links in DAddictsSpider():
+    delay = maybe_override_delay(sys.argv)
+    if delay: daddicts_spider = DAddictsSpider(delay)
+    else:     daddicts_spider = DAddictsSpider()
+    for sub_links in daddicts_spider:
         for sub_link in sub_links:
             print(sub_link)

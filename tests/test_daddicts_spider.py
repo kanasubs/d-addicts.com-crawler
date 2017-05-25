@@ -4,6 +4,7 @@ from unittest.mock import patch
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 from daddicts_spider import *
+import sys
 
 class FakeRobots():
     def fetch(self, url): raise(ReppyException())
@@ -15,6 +16,11 @@ class TopLevelTest(TestCase):
         self.assertCountEqual(unsorted_group_by(links, AbstractSpider.tag_file_or_page_link),
                               {'subs': ["d.com/1file.php?id="],
                                'pages': ["d.com/page1", "d.com/page2"]})
+
+    def test_maybe_override_delay(self):
+        self.assertIsNone(maybe_override_delay(sys.argv))
+        sys.argv.append('6')
+        self.assertEqual(maybe_override_delay(sys.argv), 6)
 
 class PageStoreTest(TestCase):
     def test_page_store(self):

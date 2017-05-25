@@ -20,8 +20,9 @@ This function can run for quite a bit, so feel free to interrupt the loop and us
 
 The spider can also be ran as a standalone command:
 ```
-./daddicts_spider.py
+./daddicts_spider.py <opt_delay_in_secs>
 ```
+
 
 ## Testing
 `pip3 install nosetests` and then run `nosetests` in the project root directory.
