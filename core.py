@@ -149,8 +149,7 @@ class DAddictsSpider(AbstractSpider):
         if self.topic_links:
             try:
                 links = self.crawl(self.topic_links.pop())
-                link_groups = group_links(links)
-                links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
+                links_to_files_of_interest = self.file_link_store.update(links)
             except Exception: pass
             return links_to_files_of_interest
         else: raise StopIteration()
