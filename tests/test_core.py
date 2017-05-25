@@ -64,6 +64,3 @@ class DAddictsSpiderTest(unittest.TestCase):
         with patch('core.Robots', new_callable=FakeRobots):
             self.assertEqual(DAddictsSpider.get_delay('http://www.d-addicts.com'),
                              DAddictsSpider.default_delay)
-
-if __name__ == '__main__':
-    with unittest.main() as main: pass
