@@ -11,15 +11,17 @@ from abc import ABC, abstractmethod
 import re
 import sys
 
+
 def unsorted_group_by(coll, fn):
     sorted_coll = sorted(coll, key=fn)
     group_pairs = groupby(sorted_coll, fn)
     groups = {}
-    for k,v in group_pairs:
+    for k, v in group_pairs:
         groups[k] = list(v)
     return groups
 
 file_types_of_interest = ["ass", "srt"]
+
 
 class PageStore:
     def __init__(self, next_pages_to_crawl):
@@ -37,6 +39,7 @@ class PageStore:
         pages_to_crawl -= self.crawled_links
         self.next_pages_to_crawl |= pages_to_crawl
 
+
 class FileLinkStore:
     def __init__(self):
         self.visited_links_of_interesting_files = set()
@@ -45,6 +48,7 @@ class FileLinkStore:
         links_to_files_of_interest -= self.visited_links_of_interesting_files
         self.visited_links_of_interesting_files |= links_to_files_of_interest
         return links_to_files_of_interest
+
 
 class AbstractSpider(ABC):
     default_delay = 61
@@ -60,8 +64,10 @@ class AbstractSpider(ABC):
 
     @staticmethod
     def tag_file_or_page_link(link):
-        if 'file.php?id=' in link: return 'subs'
-        else:                      return 'pages'
+        if 'file.php?id=' in link:
+            return 'subs'
+        else:
+            return 'pages'
 
     @classmethod
     def group_links(cls, links):
@@ -85,6 +91,7 @@ class AbstractSpider(ABC):
             delay = cls.default_delay
         return delay
 
+
 class Spider:
     def __init__(self, links):
         self.page_store = PageStore(links)
@@ -97,19 +104,25 @@ class Spider:
                 links = crawl(self.page_store.pop())
                 link_groups = group_links(links)
                 self.page_store.update(link_groups['pages'])
-                links_to_files_of_interest = self.file_link_store.update(link_groups['subs'])
-            except Exception: pass
+                subs = link_groups['subs']
+                links_to_files_of_interest = self.file_link_store.update(subs)
+            except Exception:
+                pass
             return links_to_files_of_interest
-        else: raise StopIteration()
+        else:
+            raise StopIteration()
+
 
 class DAddictsSpider(AbstractSpider):
+    base_url = "http://www.d-addicts.com/forums/page/subtitles#Japanese"
+
     def __init__(self, delay=None):
         if delay is None:
             self.delay = self.get_delay('http://www.d-addicts.com')
         else:
             self.delay = delay
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
-        self.topic_links = self.crawl("http://www.d-addicts.com/forums/page/subtitles#Japanese")
+        self.topic_links = self.crawl(base_url)
         self.crawl = self.with_crawl_fn(self._extract_links_of_interest)
         self.file_link_store = FileLinkStore()
 
@@ -132,7 +145,7 @@ class DAddictsSpider(AbstractSpider):
         next_sibling = jp_subs_heading.next_sibling
         while next_sibling:
             jp_subs_link = next_sibling.find('a')
-            if jp_subs_link and jp_subs_link != -1: # TODO search why find returns -1
+            if jp_subs_link and jp_subs_link != -1:  # TODO find why ret=-1 ?
                 jp_subs_href = jp_subs_link.get('href')
                 links.add(jp_subs_href)
             next_sibling = next_sibling.next_sibling
@@ -153,9 +166,12 @@ class DAddictsSpider(AbstractSpider):
             try:
                 links = self.crawl(self.topic_links.pop())
                 links_to_files_of_interest = self.file_link_store.update(links)
-            except Exception: pass
+            except Exception:
+                pass
             return links_to_files_of_interest
-        else: raise StopIteration()
+        else:
+            raise StopIteration()
+
 
 def maybe_override_delay(cmd_line_args):
     if len(cmd_line_args) > 1:
@@ -163,8 +179,10 @@ def maybe_override_delay(cmd_line_args):
 
 if __name__ == '__main__':
     delay = maybe_override_delay(sys.argv)
-    if delay: daddicts_spider = DAddictsSpider(delay)
-    else:     daddicts_spider = DAddictsSpider()
+    if delay:
+        daddicts_spider = DAddictsSpider(delay)
+    else:
+        daddicts_spider = DAddictsSpider()
     for sub_links in daddicts_spider:
         for sub_link in sub_links:
             print(sub_link)
