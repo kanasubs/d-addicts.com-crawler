@@ -105,9 +105,9 @@ class Spider:
 class DAddictsSpider(AbstractSpider):
     def __init__(self, delay=None):
         if delay is None:
-            self._delay = self.get_delay('http://www.d-addicts.com')
+            self.delay = self.get_delay('http://www.d-addicts.com')
         else:
-            self._delay = delay
+            self.delay = delay
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
         self.topic_links = self.crawl("http://www.d-addicts.com/forums/page/subtitles#Japanese")
         self.crawl = self.with_crawl_fn(self._extract_links_of_interest)
@@ -147,7 +147,7 @@ class DAddictsSpider(AbstractSpider):
         return crawl_
 
     def __next__(self):
-        sleep(self._delay)
+        sleep(self.delay)
         links_to_files_of_interest = set()
         if self.topic_links:
             try:
