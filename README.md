@@ -1,5 +1,7 @@
 d-addicts.com-crawler
 =======
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fkanasubs%2Fd-addicts.com-crawler.svg?type=small)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fkanasubs%2Fd-addicts.com-crawler?ref=badge_small)
+
 A Python web spider library to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
 ### Install packages
