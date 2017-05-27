@@ -1,8 +1,9 @@
 d-addicts.com-crawler
 =======
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fkanasubs%2Fd-addicts.com-crawler.svg?type=small)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fkanasubs%2Fd-addicts.com-crawler?ref=badge_small)
+[![Build Status](https://travis-ci.org/kanasubs/d-addicts.com-crawler.svg?branch=master)](https://travis-ci.org/kanasubs/d-addicts.com-crawler)
 
-A Python web spider library to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
+A Python web spider library and CLI program to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
 ### Install packages
 -------
@@ -24,7 +25,7 @@ for sub_links in DAddictsSpider(delay_between_requests):
 ```
 This function can run for quite a bit, so feel free to interrupt the loop and use the links stored in `all_sub_links` so far.
 
-#### As standalone standalone command
+#### As a CLI program
 ```
 ./daddicts_spider.py <opt_delay_in_secs>
 ```

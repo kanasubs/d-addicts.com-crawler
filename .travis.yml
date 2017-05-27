@@ -1,0 +1,19 @@
+language: python
+
+python: "3.6.1"
+
+addons:
+  apt:
+    sources: ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8  # for reppy build
+      - g++-4.8  # for reppy build
+
+install:
+  - pip install nose pipreqs pep8 html5lib
+  - pep8 daddicts_spider.py tests/test_daddicts_spider.py
+  - pipreqs . --print
+  - pipreqs . --savepath requirements.txt
+  - CC=gcc-4.8 CXX=g++-4.8 pip install -r requirements.txt
+
+script: nosetests
