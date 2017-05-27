@@ -6,7 +6,7 @@ d-addicts.com-crawler
 
 A Python web spider library and CLI program to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
-### Install packages
+### Install dependencies
 -------
 ```
 pip3 install html5lib -r requirements.txt
@@ -34,4 +34,4 @@ This function can run for quite a bit, so feel free to interrupt the loop and us
 
 ### Testing
 -------
-`pip3 install nosetests` and then run `nosetests` in the project root directory.
+`pip3 install nose` and then run `nosetests` in the project's root directory.

@@ -2,6 +2,11 @@ language: python
 
 python: "3.6.1"
 
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+
 addons:
   apt:
     sources: ubuntu-toolchain-r-test
@@ -9,11 +14,20 @@ addons:
       - gcc-4.8  # for reppy build
       - g++-4.8  # for reppy build
 
-install:
-  - pip install nose pipreqs pep8 html5lib
-  - pep8 daddicts_spider.py tests/test_daddicts_spider.py
+before_install:
+  - pip install pipreqs
   - pipreqs . --print
   - pipreqs . --savepath requirements.txt
-  - CC=gcc-4.8 CXX=g++-4.8 pip install -r requirements.txt
 
-script: nosetests
+install:
+  - CC=gcc-4.8 CXX=g++-4.8 pip install html5lib -r requirements.txt
+
+before_script:
+  - pip install pep8 coverage nose
+  - pip install coveralls
+
+script:
+  - pep8 .
+  - coverage run --source=. --omit=tests/* -m nose
+
+after_success: coveralls
