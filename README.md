@@ -2,6 +2,7 @@ d-addicts.com-crawler
 =======
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fkanasubs%2Fd-addicts.com-crawler.svg?type=small)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fkanasubs%2Fd-addicts.com-crawler?ref=badge_small)
 [![Build Status](https://travis-ci.org/kanasubs/d-addicts.com-crawler.svg?branch=master)](https://travis-ci.org/kanasubs/d-addicts.com-crawler)
+[![Coverage Status](https://coveralls.io/repos/github/kanasubs/d-addicts.com-crawler/badge.svg?branch=master)](https://coveralls.io/github/kanasubs/d-addicts.com-crawler?branch=master)
 
 A Python web spider library and CLI program to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
