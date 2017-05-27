@@ -9,7 +9,7 @@ A Python web spider library and CLI program to crawl for subtitles links in [d-a
 ### Install packages
 -------
 ```
-pip3 install beautifulsoup4 reppy html5lib
+pip3 install html5lib -r requirements.txt
 ```
 
 ### Usage
