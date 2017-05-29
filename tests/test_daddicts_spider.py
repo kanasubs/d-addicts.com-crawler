@@ -1,14 +1,18 @@
-import unittest
-from unittest import TestCase
-from unittest.mock import patch
+# pylint: disable=wildcard-import,unused-import,unused-wildcard-import
+
+import sys
+
+from unittest import mock, TestCase
+
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
+
 from daddicts_spider import *
-import sys
 
 
 class FakeRobots():
-    def fetch(self, url): raise(ReppyException())
+    def fetch(self, url):
+        raise ReppyException({'obj': self, 'url': url})
 
 
 class TopLevelTest(TestCase):
@@ -45,7 +49,7 @@ class FileLinkStoreTest(TestCase):
         self.assertSetEqual(links, {'d.co/file.php?id=2'})
 
 
-class Spider(unittest.TestCase):
+class AbstractSpiderTest(TestCase):
     def test_tag_file_or_page_link(self):
         tag_file_or_page_link = AbstractSpider.tag_file_or_page_link
         self.assertEqual(tag_file_or_page_link('d.com/file.php?id='), 'subs')
@@ -60,25 +64,25 @@ class Spider(unittest.TestCase):
                             {"d.co/p1"})
 
 
-class DAddictsSpiderTest(unittest.TestCase):
+class DAddictsSpiderTest(TestCase):
     def test_extract_topic_links(self):
-        with open('tests/resources/d_addicts_base_page.html') as f:
-            links = DAddictsSpider.extract_topic_links(f.read())
+        with open('tests/resources/d_addicts_base_page.html') as file:
+            links = DAddictsSpider.extract_topic_links(file.read())
             self.assertGreater(len(links), 543)
             for link in links:
                 self.assertIn('www.d-addicts.com/forums/viewtopic.php?t=',
                               link)
 
     def test_extract_links_of_interest(self):
-        with open('tests/resources/viewtopic.php?t=99358') as f:
-            links = DAddictsSpider._extract_links_of_interest(f.read())
+        with open('tests/resources/viewtopic.php?t=99358') as file:
+            links = DAddictsSpider.extract_links_of_interest(file.read())
             self.assertGreater(len(links), 8)
             for link in links:
-                self.assertIn(DAddictsSpider._file_of_interest_subs, link)
+                self.assertIn(DAddictsSpider.file_of_interest_subs, link)
 
     def test_get_delay(self):  # TODO impl. monad either to test l/r branching
         get_delay = DAddictsSpider.get_delay
         self.assertGreaterEqual(get_delay('http://www.d-addicts.com'), 0)
-        with patch('daddicts_spider.Robots', new_callable=FakeRobots):
+        with mock.patch('daddicts_spider.Robots', new_callable=FakeRobots):
             self.assertEqual(get_delay('http://www.d-addicts.com'),
                              DAddictsSpider.default_delay)

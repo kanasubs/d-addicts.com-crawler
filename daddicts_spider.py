@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 
-from itertools import groupby
-from bs4 import BeautifulSoup
-import urllib.request
-from urllib.parse import urljoin
-from reppy.robots import Robots
-from reppy.exceptions import ReppyException
-from time import sleep
-from abc import ABC, abstractmethod
 import re
 import sys
+import urllib
+
+from itertools import groupby
+from time import sleep
+from abc import ABC, abstractmethod, abstractclassmethod
+
+from bs4 import BeautifulSoup
+from reppy.robots import Robots
+from reppy.exceptions import ReppyException
 
 
-def unsorted_group_by(coll, fn):
-    sorted_coll = sorted(coll, key=fn)
-    group_pairs = groupby(sorted_coll, fn)
+def unsorted_group_by(coll, fun):
+    sorted_coll = sorted(coll, key=fun)
+    group_pairs = groupby(sorted_coll, fun)
     groups = {}
-    for k, v in group_pairs:
-        groups[k] = list(v)
+    for k, val in group_pairs:
+        groups[k] = list(val)
     return groups
 
-file_types_of_interest = ["ass", "srt"]
+FILE_TYPES_OF_INTEREST = ["ass", "srt"]
 
 
 class PageStore:
@@ -28,7 +29,8 @@ class PageStore:
         self.next_pages_to_crawl = next_pages_to_crawl
         self.crawled_links = set()
 
-    def has(self): return bool(self.next_pages_to_crawl)
+    def has(self):
+        return bool(self.next_pages_to_crawl)
 
     def pop(self):
         new_page_to_crawl = self.next_pages_to_crawl.pop()
@@ -42,32 +44,45 @@ class PageStore:
 
 class FileLinkStore:
     def __init__(self):
-        self.visited_links_of_interesting_files = set()
+        self.visited_links = set()
 
     def update(self, links_to_files_of_interest):
-        links_to_files_of_interest -= self.visited_links_of_interesting_files
-        self.visited_links_of_interesting_files |= links_to_files_of_interest
+        links_to_files_of_interest -= self.visited_links
+        self.visited_links |= links_to_files_of_interest
         return links_to_files_of_interest
 
 
 class AbstractSpider(ABC):
     default_delay = 61
 
-    def __iter__(self): return self
+    def __iter__(self):
+        return self
 
     @abstractmethod
-    def __next__(self): pass
+    def __next__(self):
+        pass
 
     @staticmethod
     def download(link):
         return urllib.request.urlopen(link).read()
 
+    @classmethod
+    def with_crawl_fn(cls, crawl_fn):
+        def crawl_(link):
+            html_page = cls.download(link)
+            links = crawl_fn(html_page)
+            return cls.filter_useful_links(links)
+        return crawl_
+
+    @abstractclassmethod
+    def extract_links_of_interest(cls, html_page):
+        pass
+
     @staticmethod
     def tag_file_or_page_link(link):
         if 'file.php?id=' in link:
             return 'subs'
-        else:
-            return 'pages'
+        return 'pages'
 
     @classmethod
     def group_links(cls, links):
@@ -83,7 +98,7 @@ class AbstractSpider(ABC):
 
     @classmethod
     def get_delay(cls, url):
-        robots_url = urljoin(url, 'robots.txt')
+        robots_url = urllib.parse.urljoin(url, 'robots.txt')
         try:
             robots = Robots.fetch(robots_url)
             delay = robots.agent('None').delay
@@ -92,21 +107,27 @@ class AbstractSpider(ABC):
         return delay
 
 
-class Spider:
+class Spider(AbstractSpider):
     def __init__(self, links):
         self.page_store = PageStore(links)
         self.file_link_store = FileLinkStore()
+        self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
+
+    @classmethod
+    def extract_links_of_interest(cls, html_page):
+        """PASSTHROUGH STUB"""
+        return set()
 
     def __next__(self):
         links_to_files_of_interest = set()
         if self.page_store.has():
             try:
-                links = crawl(self.page_store.pop())
-                link_groups = group_links(links)
+                links = self.crawl(self.page_store.pop())
+                link_groups = self.group_links(links)
                 self.page_store.update(link_groups['pages'])
                 subs = link_groups['subs']
                 links_to_files_of_interest = self.file_link_store.update(subs)
-            except Exception:
+            except urllib.error.URLError:
                 pass
             return links_to_files_of_interest
         else:
@@ -122,18 +143,18 @@ class DAddictsSpider(AbstractSpider):
         else:
             self.delay = delay
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
-        self.topic_links = self.crawl(base_url)
-        self.crawl = self.with_crawl_fn(self._extract_links_of_interest)
+        self.topic_links = self.crawl(self.base_url)
+        self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
         self.file_link_store = FileLinkStore()
 
-    _file_of_interest_subs = 'file.php?id='
-    _file_of_interest_pattern = re.compile(re.escape(_file_of_interest_subs))
+    file_of_interest_subs = 'file.php?id='
+    file_of_interest_pattern = re.compile(re.escape(file_of_interest_subs))
 
     @classmethod
-    def _extract_links_of_interest(cls, html_page):
+    def extract_links_of_interest(cls, html_page):
         soup = BeautifulSoup(html_page, "html5lib")
         links = set()
-        for link in soup.find_all('a', href=cls._file_of_interest_pattern):
+        for link in soup.find_all('a', href=cls.file_of_interest_pattern):
             links.add(link['href'])
         return links
 
@@ -151,14 +172,6 @@ class DAddictsSpider(AbstractSpider):
             next_sibling = next_sibling.next_sibling
         return links
 
-    @classmethod
-    def with_crawl_fn(cls, crawl_fn):
-        def crawl_(link):
-            html_page = cls.download(link)
-            links = crawl_fn(html_page)
-            return cls.filter_useful_links(links)
-        return crawl_
-
     def __next__(self):
         sleep(self.delay)
         links_to_files_of_interest = set()
@@ -166,7 +179,7 @@ class DAddictsSpider(AbstractSpider):
             try:
                 links = self.crawl(self.topic_links.pop())
                 links_to_files_of_interest = self.file_link_store.update(links)
-            except Exception:
+            except urllib.error.URLError:
                 pass
             return links_to_files_of_interest
         else:
@@ -178,11 +191,11 @@ def maybe_override_delay(cmd_line_args):
         return int(sys.argv[1])
 
 if __name__ == '__main__':
-    delay = maybe_override_delay(sys.argv)
-    if delay:
-        daddicts_spider = DAddictsSpider(delay)
+    DELAY = maybe_override_delay(sys.argv)
+    if DELAY:
+        DADDICTS_SPIDER = DAddictsSpider(DELAY)
     else:
-        daddicts_spider = DAddictsSpider()
-    for sub_links in daddicts_spider:
+        DADDICTS_SPIDER = DAddictsSpider()
+    for sub_links in DADDICTS_SPIDER:
         for sub_link in sub_links:
             print(sub_link)

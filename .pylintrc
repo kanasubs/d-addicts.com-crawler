@@ -1,0 +1,13 @@
+[MESSAGES CONTROL]
+
+disable=missing-docstring,too-few-public-methods
+
+
+[MISCELLANEOUS]
+
+notes=
+
+
+[MASTER]
+
+extension-pkg-whitelist=reppy.robots
