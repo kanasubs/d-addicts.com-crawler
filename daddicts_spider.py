@@ -13,6 +13,9 @@ from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 
 
+FILE_TYPES_OF_INTEREST = ["ass", "srt"]
+
+
 def unsorted_group_by(coll, fun):
     sorted_coll = sorted(coll, key=fun)
     group_pairs = groupby(sorted_coll, fun)
@@ -20,8 +23,6 @@ def unsorted_group_by(coll, fun):
     for k, val in group_pairs:
         groups[k] = list(val)
     return groups
-
-FILE_TYPES_OF_INTEREST = ["ass", "srt"]
 
 
 class PageStore:
@@ -189,6 +190,7 @@ class DAddictsSpider(AbstractSpider):
 def maybe_override_delay(cmd_line_args):
     if len(cmd_line_args) > 1:
         return int(sys.argv[1])
+
 
 if __name__ == '__main__':
     DELAY = maybe_override_delay(sys.argv)
