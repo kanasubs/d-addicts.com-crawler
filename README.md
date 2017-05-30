@@ -33,7 +33,12 @@ This function can run for quite a bit, so feel free to interrupt the loop and us
 ./daddicts_spider.py <opt_delay_in_secs>
 ```
 
-
 ### Testing
 -------
 `pip3 install nose` and then run `nosetests` in the project's root directory.
+
+### License
+-------
+Copyright (C) 2017 Carlos C. Fontes.
+
+Licensed under the [MIT License](https://opensource.org/licenses/MIT).
