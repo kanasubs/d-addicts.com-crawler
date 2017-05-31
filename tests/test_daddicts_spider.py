@@ -84,3 +84,7 @@ class DAddictsSpiderTest(TestCase):
         with mock.patch('daddicts_spider.Robots', new_callable=FakeRobots):
             self.assertEqual(get_delay('http://www.d-addicts.com'),
                              DAddictsSpider.default_delay)
+
+    def test_next(self):
+        daddicts_spider = DAddictsSpider(0)
+        self.assertIn('/download/file.php?id=', next(daddicts_spider).pop())
