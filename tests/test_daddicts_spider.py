@@ -64,7 +64,8 @@ class AbstractSpiderTest(TestCase):
 
 class DAddictsSpiderTest(TestCase):
     def test_extract_topic_links(self):
-        with open('tests/resources/d_addicts_base_page.html') as file:
+        filename = 'tests/resources/d_addicts_base_page.html'
+        with open(filename, encoding='UTF-8') as file:
             links = DAddictsSpider.extract_topic_links(file.read())
             self.assertGreater(len(links), 543)
             for link in links:
@@ -72,7 +73,8 @@ class DAddictsSpiderTest(TestCase):
                               link)
 
     def test_extract_links_of_interest(self):
-        with open('tests/resources/viewtopic.php?t=99358') as file:
+        filename = 'tests/resources/viewtopic.php?t=99358'
+        with open(filename, encoding='UTF-8') as file:
             links = DAddictsSpider.extract_links_of_interest(file.read())
             self.assertGreater(len(links), 8)
             for link in links:
