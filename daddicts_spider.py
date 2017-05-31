@@ -108,35 +108,10 @@ class AbstractSpider(ABC):
         return delay
 
 
-class Spider(AbstractSpider):
-    def __init__(self, links):
-        self.page_store = PageStore(links)
-        self.file_link_store = FileLinkStore()
-        self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
-
-    @classmethod
-    def extract_links_of_interest(cls, html_page):
-        """PASSTHROUGH STUB"""
-        return set()
-
-    def __next__(self):
-        links_to_files_of_interest = set()
-        if self.page_store.has():
-            try:
-                links = self.crawl(self.page_store.pop())
-                link_groups = self.group_links(links)
-                self.page_store.update(link_groups['pages'])
-                subs = link_groups['subs']
-                links_to_files_of_interest = self.file_link_store.update(subs)
-            except urllib.error.URLError:
-                pass
-            return links_to_files_of_interest
-        else:
-            raise StopIteration()
-
-
 class DAddictsSpider(AbstractSpider):
     base_url = "http://www.d-addicts.com/forums/page/subtitles#Japanese"
+    file_of_interest_subs = 'file.php?id='
+    file_of_interest_pattern = re.compile(re.escape(file_of_interest_subs))
 
     def __init__(self, delay=None):
         if delay is None:
@@ -147,9 +122,6 @@ class DAddictsSpider(AbstractSpider):
         self.topic_links = self.crawl(self.base_url)
         self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
         self.file_link_store = FileLinkStore()
-
-    file_of_interest_subs = 'file.php?id='
-    file_of_interest_pattern = re.compile(re.escape(file_of_interest_subs))
 
     @classmethod
     def extract_links_of_interest(cls, html_page):
