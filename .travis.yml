@@ -23,14 +23,11 @@ install:
   - CC=gcc-4.8 CXX=g++-4.8 pip install html5lib -r requirements.txt
 
 before_script:
-  - pip install pep8 pylint flake8 coverage nose
+  - pip install pylama coverage nose
   - pip install coveralls
 
 script:
-  - pep8 .
-  - pylint tests/*py *.py
-  - flake8 daddicts_spider.py
-  - flake8 --ignore F401,F403,F405 tests/test_daddicts_spider.py
+  - pylama
   - coverage run --source=. --omit=tests/* -m nose
 
 after_success: coveralls

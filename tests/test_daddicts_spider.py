@@ -1,5 +1,3 @@
-# pylint: disable=wildcard-import,unused-import,unused-wildcard-import
-
 import sys
 
 from unittest import mock, TestCase
