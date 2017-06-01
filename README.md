@@ -21,16 +21,17 @@ pip3 install html5lib -r requirements.txt
 from daddicts_spider import DAddictsSpider
 
 all_sub_links = set()
-delay_between_requests = 6 # optional arg to DAddictsSpider
-for sub_links in DAddictsSpider(delay_between_requests):
-  print(sub_links)
-  all_sub_links |= sub_links
+delay_between_requests = 6  # optional arg to DAddictsSpider
+take_around_n_links = 10    # optional arg to DAddictsSpider
+for sub_links in DAddictsSpider(delay_between_requests, take_around_n_links):
+    print(sub_links)
+    all_sub_links |= sub_links
 ```
 This function can run for quite a bit, so feel free to interrupt the loop and use the links stored in `all_sub_links` so far.
 
 #### As a CLI program
 ```
-./daddicts_spider.py <opt_delay_in_secs>
+./daddicts_spider.py <opt_delay_in_secs> <take_around_n_links>
 ```
 
 ### Testing

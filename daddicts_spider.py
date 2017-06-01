@@ -44,13 +44,21 @@ class PageStore:
 
 
 class FileLinkStore:
-    def __init__(self):
+    def __init__(self, take=None):
         self.visited_links = set()
+        self.take = take
 
     def update(self, links_to_files_of_interest):
         links_to_files_of_interest -= self.visited_links
         self.visited_links |= links_to_files_of_interest
-        return links_to_files_of_interest
+        res = links_to_files_of_interest
+        return res
+
+    def can_take(self):
+        if self.take:
+            return len(self.visited_links) < self.take
+        else:
+            return True
 
 
 class AbstractSpider(ABC):
@@ -61,7 +69,7 @@ class AbstractSpider(ABC):
 
     @abstractmethod
     def __next__(self):
-        pass
+        self.take += 1
 
     @staticmethod
     def download(link):
@@ -97,14 +105,28 @@ class AbstractSpider(ABC):
         """PASSTHROUGH STUB"""
         return links
 
-    @classmethod
-    def get_delay(cls, url):
+    @staticmethod
+    def get_robots_delay(url):
         robots_url = urllib.parse.urljoin(url, 'robots.txt')
         try:
             robots = Robots.fetch(robots_url)
             delay = robots.agent('None').delay
         except ReppyException:
-            delay = cls.default_delay
+            delay = None
+
+        return delay
+
+    @classmethod
+    def choose_delay(cls, user_delay, url):
+        if user_delay is not None:
+            delay = user_delay
+        else:
+            robots_delay = cls.get_robots_delay(url)
+            if robots_delay is not None:
+                delay = robots_delay
+            else:
+                delay = cls.default_delay
+
         return delay
 
 
@@ -113,22 +135,21 @@ class DAddictsSpider(AbstractSpider):
     file_of_interest_subs = 'file.php?id='
     file_of_interest_pattern = re.compile(re.escape(file_of_interest_subs))
 
-    def __init__(self, delay=None):
-        if delay is None:
-            self.delay = self.get_delay('http://www.d-addicts.com')
-        else:
-            self.delay = delay
+    def __init__(self, delay=None, take=None):
+        self.delay = self.choose_delay(delay, 'http://www.d-addicts.com')
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
         self.topic_links = self.crawl(self.base_url)
         self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
-        self.file_link_store = FileLinkStore()
+        self.file_link_store = FileLinkStore(take)
 
     @classmethod
     def extract_links_of_interest(cls, html_page):
         soup = BeautifulSoup(html_page, "html5lib")
         links = set()
+
         for link in soup.find_all('a', href=cls.file_of_interest_pattern):
             links.add(link['href'])
+
         return links
 
     @staticmethod
@@ -136,6 +157,7 @@ class DAddictsSpider(AbstractSpider):
         soup = BeautifulSoup(html_page, "html5lib")
         links = set()
         jp_subs_heading = soup.find('h3', text='Japanese Subtitles')
+
         next_sibling = jp_subs_heading.next_sibling
         while next_sibling:
             jp_subs_link = next_sibling.find('a')
@@ -143,33 +165,46 @@ class DAddictsSpider(AbstractSpider):
                 jp_subs_href = jp_subs_link.get('href')
                 links.add(jp_subs_href)
             next_sibling = next_sibling.next_sibling
+
         return links
 
     def __next__(self):
         sleep(self.delay)
         links_to_files_of_interest = set()
-        if self.topic_links:
+
+        if self.topic_links and self.file_link_store.can_take():
             try:
                 links = self.crawl(self.topic_links.pop())
                 links_to_files_of_interest = self.file_link_store.update(links)
             except urllib.error.URLError:
                 pass
-            return links_to_files_of_interest
         else:
             raise StopIteration()
 
+        return links_to_files_of_interest
 
-def maybe_override_delay(cmd_line_args):
-    if len(cmd_line_args) > 1:
-        return int(sys.argv[1])
+
+class MainSpider(DAddictsSpider):
+    def __init__(self, cmd_line_args):
+        super().__init__(self.maybe_get_delay(cmd_line_args),
+                         self.maybe_take_some(cmd_line_args))
+
+    @staticmethod
+    def maybe_get_delay(cmd_line_args):
+        if len(cmd_line_args) > 1:
+            return int(cmd_line_args[1])
+
+    @staticmethod
+    def maybe_take_some(cmd_line_args):
+        if len(cmd_line_args) > 2:
+            return int(cmd_line_args[2])
+
+
+def main(cmd_line_args):
+    for sub_links in MainSpider(cmd_line_args):
+        for sub_link in sub_links:
+            print(sub_link)
 
 
 if __name__ == '__main__':
-    DELAY = maybe_override_delay(sys.argv)
-    if DELAY:
-        DADDICTS_SPIDER = DAddictsSpider(DELAY)
-    else:
-        DADDICTS_SPIDER = DAddictsSpider()
-    for sub_links in DADDICTS_SPIDER:
-        for sub_link in sub_links:
-            print(sub_link)
+    main(sys.argv)

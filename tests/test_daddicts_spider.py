@@ -1,4 +1,5 @@
 import sys
+import io
 
 from unittest import mock, TestCase
 
@@ -22,10 +23,13 @@ class TopLevelTest(TestCase):
                               {'subs': ["d.com/1file.php?id="],
                                'pages': ["d.com/page1", "d.com/page2"]})
 
-    def test_maybe_override_delay(self):
-        self.assertIsNone(maybe_override_delay(sys.argv))
-        sys.argv.append('6')
-        self.assertEqual(maybe_override_delay(sys.argv), 6)
+    def test_main(self):
+        stdout_ = sys.stdout
+        sys.stdout = io.StringIO()
+        main(['daddicts_spider', '0', '2'])
+        main_out = sys.stdout.getvalue()
+        sys.stdout = stdout_
+        self.assertGreaterEqual(main_out.count('./download/file.php?id='), 2)
 
 
 class PageStoreTest(TestCase):
@@ -42,8 +46,7 @@ class FileLinkStoreTest(TestCase):
         file_link_store = FileLinkStore()
         links = file_link_store.update({'d.co/file.php?id=1'})
         self.assertSetEqual(links, {'d.co/file.php?id=1'})
-        links = file_link_store.update({'d.co/file.php?id=1',
-                                        'd.co/file.php?id=2'})
+        links = file_link_store.update({'d.co/file.php?id=1', 'd.co/file.php?id=2'})
         self.assertSetEqual(links, {'d.co/file.php?id=2'})
 
 
@@ -56,10 +59,24 @@ class AbstractSpiderTest(TestCase):
     def test_group_links(self):
         group_links = AbstractSpider.group_links
         self.assertSetEqual(group_links({"d.co/p1"}).get('subs'), set())
-        self.assertSetEqual(group_links({"d.co/file.php?id="}).get('pages'),
-                            set())
-        self.assertSetEqual(group_links({"d.co/p1"}).get('pages'),
-                            {"d.co/p1"})
+        self.assertSetEqual(group_links({"d.co/file.php?id="}).get('pages'), set())
+        self.assertSetEqual(group_links({"d.co/p1"}).get('pages'), {"d.co/p1"})
+
+    def test_robots_delay(self):  # TODO impl. monad either to test l/r branch
+        get_robots_delay = AbstractSpider.get_robots_delay
+        self.assertGreaterEqual(get_robots_delay('http://www.d-addicts.com'), 0)
+        with mock.patch('daddicts_spider.Robots', new_callable=FakeRobots):
+            self.assertEqual(get_robots_delay('http://www.d-addicts.com'), None)
+
+    def test_choose_delay(self):
+        get_robots_delay = AbstractSpider.get_robots_delay
+        choose_delay = AbstractSpider.choose_delay
+        default_delay = AbstractSpider.default_delay
+        self.assertEqual(choose_delay(0, 'http://www.d-addicts.com'), 0)
+        self.assertEqual(choose_delay(None, 'http://www.d-addicts.com'),
+                         get_robots_delay('http://www.d-addicts.com'))
+        self.assertEqual(choose_delay(0, 'bad_website'), 0)
+        self.assertEqual(choose_delay(None, 'bad_website'), default_delay)
 
 
 class DAddictsSpiderTest(TestCase):
@@ -69,8 +86,7 @@ class DAddictsSpiderTest(TestCase):
             links = DAddictsSpider.extract_topic_links(file.read())
             self.assertGreater(len(links), 543)
             for link in links:
-                self.assertIn('www.d-addicts.com/forums/viewtopic.php?t=',
-                              link)
+                self.assertIn('www.d-addicts.com/forums/viewtopic.php?t=', link)
 
     def test_extract_links_of_interest(self):
         filename = 'tests/resources/viewtopic.php?t=99358'
@@ -80,13 +96,12 @@ class DAddictsSpiderTest(TestCase):
             for link in links:
                 self.assertIn(DAddictsSpider.file_of_interest_subs, link)
 
-    def test_get_delay(self):  # TODO impl. monad either to test l/r branching
-        get_delay = DAddictsSpider.get_delay
-        self.assertGreaterEqual(get_delay('http://www.d-addicts.com'), 0)
-        with mock.patch('daddicts_spider.Robots', new_callable=FakeRobots):
-            self.assertEqual(get_delay('http://www.d-addicts.com'),
-                             DAddictsSpider.default_delay)
-
     def test_next(self):
-        daddicts_spider = DAddictsSpider(0)
-        self.assertIn('/download/file.php?id=', next(daddicts_spider).pop())
+        self.assertIn('/download/file.php?id=', next(DAddictsSpider(0)).pop())
+
+
+class MainSpiderTest(TestCase):
+    def test_maybe_get_delay(self):
+        maybe_get_delay = MainSpider.maybe_get_delay
+        self.assertIsNone(maybe_get_delay(['daddicts_spider']))
+        self.assertEqual(maybe_get_delay(['daddicts_spider', '6']), 6)
