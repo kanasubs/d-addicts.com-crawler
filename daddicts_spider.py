@@ -120,7 +120,7 @@ class DAddictsSpider(AbstractSpider):
     def __init__(self, delay=None, take=None):
         self.delay = self.choose_delay(delay, 'http://www.d-addicts.com')
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
-        self.topic_links = self.crawl(self.base_url)
+        self.topic_links = iter(self.crawl(self.base_url))
         self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
         self.file_link_store = FileLinkStore(take)
 
@@ -154,9 +154,9 @@ class DAddictsSpider(AbstractSpider):
         sleep(self.delay)
         links_to_files_of_interest = set()
 
-        if self.topic_links and self.file_link_store.can_take():
+        if self.file_link_store.can_take():
             try:
-                links = self.crawl(self.topic_links.pop())
+                links = self.crawl(next(self.topic_links))
                 links_to_files_of_interest = self.file_link_store.update(links)
             except urllib.error.URLError:
                 pass
