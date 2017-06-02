@@ -25,24 +25,6 @@ def unsorted_group_by(coll, fun):
     return groups
 
 
-class PageStore:
-    def __init__(self, next_pages_to_crawl):
-        self.next_pages_to_crawl = next_pages_to_crawl
-        self.crawled_links = set()
-
-    def has(self):
-        return bool(self.next_pages_to_crawl)
-
-    def pop(self):
-        new_page_to_crawl = self.next_pages_to_crawl.pop()
-        self.crawled_links.add(new_page_to_crawl)
-        return new_page_to_crawl
-
-    def update(self, pages_to_crawl):
-        pages_to_crawl -= self.crawled_links
-        self.next_pages_to_crawl |= pages_to_crawl
-
-
 class FileLinkStore:
     def __init__(self, take=None):
         self.visited_links = set()

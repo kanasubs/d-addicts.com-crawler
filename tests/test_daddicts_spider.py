@@ -32,15 +32,6 @@ class TopLevelTest(TestCase):
         self.assertGreaterEqual(main_out.count('./download/file.php?id='), 2)
 
 
-class PageStoreTest(TestCase):
-    def test_page_store(self):
-        page_store = PageStore({"d.co/p1"})
-        self.assertEqual(page_store.pop(), "d.co/p1")
-        self.assertFalse(page_store.has())
-        page_store.update({"d.co/p2"})
-        self.assertEqual(page_store.pop(), "d.co/p2")
-
-
 class FileLinkStoreTest(TestCase):
     def test_file_link_store(self):
         file_link_store = FileLinkStore()
