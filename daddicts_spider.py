@@ -13,9 +13,6 @@ from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 
 
-FILE_TYPES_OF_INTEREST = ["ass", "srt"]
-
-
 def unsorted_group_by(coll, fun):
     sorted_coll = sorted(coll, key=fun)
     group_pairs = groupby(sorted_coll, fun)
