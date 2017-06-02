@@ -33,12 +33,20 @@ class TopLevelTest(TestCase):
 
 
 class FileLinkStoreTest(TestCase):
-    def test_file_link_store(self):
+    def test_file_link_store_update(self):
         file_link_store = FileLinkStore()
         links = file_link_store.update({'d.co/file.php?id=1'})
         self.assertSetEqual(links, {'d.co/file.php?id=1'})
         links = file_link_store.update({'d.co/file.php?id=1', 'd.co/file.php?id=2'})
         self.assertSetEqual(links, {'d.co/file.php?id=2'})
+
+    def test_file_link_store_can_take(self):
+        can_always_take_file_link_store = FileLinkStore()
+        self.assertTrue(can_always_take_file_link_store)
+        can_take_file_link_store = FileLinkStore(1)
+        self.assertTrue(can_take_file_link_store.can_take())
+        cant_take_file_link_store = FileLinkStore(0)
+        self.assertFalse(cant_take_file_link_store.can_take())
 
 
 class AbstractSpiderTest(TestCase):

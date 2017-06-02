@@ -35,7 +35,7 @@ class FileLinkStore(object):
         return res
 
     def can_take(self):
-        if self.take:
+        if self.take is not None:
             return len(self.visited_links) < self.take
         else:
             return True
