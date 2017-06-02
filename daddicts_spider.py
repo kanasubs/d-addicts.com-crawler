@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod, abstractclassmethod
 from bs4 import BeautifulSoup
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
+from fn.monad import Option
 
 
 def unsorted_group_by(coll, fun):
@@ -22,7 +23,7 @@ def unsorted_group_by(coll, fun):
     return groups
 
 
-class FileLinkStore:
+class FileLinkStore(object):
     def __init__(self, take=None):
         self.visited_links = set()
         self.take = take
@@ -97,16 +98,10 @@ class AbstractSpider(ABC):
 
     @classmethod
     def choose_delay(cls, user_delay, url):
-        if user_delay is not None:
-            delay = user_delay
-        else:
-            robots_delay = cls.get_robots_delay(url)
-            if robots_delay is not None:
-                delay = robots_delay
-            else:
-                delay = cls.default_delay
-
-        return delay
+        return Option \
+                  .from_value(user_delay) \
+                  .or_call(cls.get_robots_delay, url) \
+                  .get_or(cls.default_delay)
 
 
 class DAddictsSpider(AbstractSpider):

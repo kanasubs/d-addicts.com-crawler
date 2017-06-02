@@ -27,7 +27,6 @@ for sub_links in DAddictsSpider(delay_between_requests, take_around_n_links):
     print(sub_links)
     all_sub_links |= sub_links
 ```
-This function can run for quite a bit, so feel free to interrupt the loop and use the links stored in `all_sub_links` so far.
 
 #### As a CLI program
 ```
