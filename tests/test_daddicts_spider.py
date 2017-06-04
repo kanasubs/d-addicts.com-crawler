@@ -25,7 +25,7 @@ class FakeCliArgs():
 class TopLevelTest(TestCase):
 
     def test_unsorted_group_by(self):
-        tag_file_or_page_link = AbstractSpider.tag_file_or_page_link
+        tag_file_or_page_link = ABCSpider.tag_file_or_page_link
         links = {"d.com/1file.php?id=", "d.com/page1", "d.com/page2"}
         self.assertCountEqual(unsorted_group_by(links, tag_file_or_page_link),
                               {'subs': ["d.com/1file.php?id="],
@@ -59,20 +59,20 @@ class FileLinkStoreTest(TestCase):
         self.assertFalse(cant_take_file_link_store.can_take())
 
 
-class AbstractSpiderTest(TestCase):
+class ABCSpiderTest(TestCase):
     def test_tag_file_or_page_link(self):
-        tag_file_or_page_link = AbstractSpider.tag_file_or_page_link
+        tag_file_or_page_link = ABCSpider.tag_file_or_page_link
         self.assertEqual(tag_file_or_page_link('d.com/file.php?id='), 'subs')
         self.assertEqual(tag_file_or_page_link('d.com/page1'), 'pages')
 
     def test_group_links(self):
-        group_links = AbstractSpider.group_links
+        group_links = ABCSpider.group_links
         self.assertSetEqual(group_links({"d.co/p1"}).get('subs'), set())
         self.assertSetEqual(group_links({"d.co/file.php?id="}).get('pages'), set())
         self.assertSetEqual(group_links({"d.co/p1"}).get('pages'), {"d.co/p1"})
 
     def test_robots_delay(self):  # TODO impl. monad either to test l/r branch
-        get_robots_delay = AbstractSpider.get_robots_delay
+        get_robots_delay = ABCSpider.get_robots_delay
         robots_delay = get_robots_delay('http://www.d-addicts.com')
         self.assertTrue(isinstance(robots_delay, Right))
         self.assertGreaterEqual(robots_delay.getValue(), 0)
@@ -80,9 +80,9 @@ class AbstractSpiderTest(TestCase):
             self.assertEqual(get_robots_delay('http://www.d-addicts.com'), Left(None))
 
     def test_choose_delay(self):
-        get_robots_delay = AbstractSpider.get_robots_delay
-        choose_delay = AbstractSpider.choose_delay
-        default_delay = AbstractSpider.default_delay
+        get_robots_delay = ABCSpider.get_robots_delay
+        choose_delay = ABCSpider.choose_delay
+        default_delay = ABCSpider.default_delay
         self.assertEqual(choose_delay(0, 'http://www.d-addicts.com'), Right(0))
         self.assertEqual(choose_delay(None, 'http://www.d-addicts.com').getValue(),
                          get_robots_delay('http://www.d-addicts.com').getValue())

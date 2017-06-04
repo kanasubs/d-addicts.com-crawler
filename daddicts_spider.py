@@ -42,7 +42,7 @@ class FileLinkStore(object):
             return True
 
 
-class AbstractSpider(ABC):
+class ABCSpider(ABC):
     default_delay = 60
 
     def __iter__(self): return self
@@ -97,7 +97,7 @@ class AbstractSpider(ABC):
                .get_or(Left(cls.default_delay))
 
 
-class DAddictsSpider(AbstractSpider):
+class DAddictsSpider(ABCSpider):
     base_url = "http://www.d-addicts.com/forums/page/subtitles#Japanese"
     file_of_interest_subs = 'file.php?id='
     file_of_interest_pattern = re.compile(re.escape(file_of_interest_subs))
