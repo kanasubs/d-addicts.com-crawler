@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from util.monad.either import *
+from lib.monad.either import *
 
 
 class TopLevelTest(TestCase):

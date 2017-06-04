@@ -6,7 +6,7 @@ d-addicts.com-crawler
 [![Code Climate](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler/badges/gpa.svg)](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler)
 [![Issue Count](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler/badges/issue_count.svg)](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler)
 
-A Python web spider library and CLI program to crawl for subtitles links in [d-addicts.com](https://www.d-addicts.com/).
+A Python web spider library and CLI program to crawl for Japanese subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
 ### Install dependencies
 -------
@@ -22,15 +22,15 @@ from daddicts_spider import DAddictsSpider
 
 all_sub_links = set()
 delay_between_requests = 6  # optional arg to DAddictsSpider
-take_around_n_links = 10    # optional arg to DAddictsSpider
-for sub_links in DAddictsSpider(delay_between_requests, take_around_n_links):
+take_at_least_n_links = 10    # optional arg to DAddictsSpider
+for sub_links in DAddictsSpider(delay_between_requests, take_at_least_n_links):
     print(sub_links)
     all_sub_links |= sub_links
 ```
 
 #### As a CLI program
 ```
-./daddicts_spider.py <opt_delay_in_secs> <take_around_n_links>
+./daddicts_spider.py --delay <opt_delay_in_secs> --take <take_at_least_n_links>
 ```
 
 ### Testing

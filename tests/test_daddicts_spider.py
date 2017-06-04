@@ -6,14 +6,20 @@ from unittest import mock, TestCase
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 
-from daddicts_spider import *
+from lib.monad.either import Left, Right
 
-from util.monad.either import Left, Right
+from daddicts_spider import *
 
 
 class FakeRobots():
     def fetch(self, url):
         raise ReppyException({'obj': self, 'url': url})
+
+
+class FakeCliArgs():
+    def __init__(self, delay, take):
+        self.delay = delay
+        self.take = take
 
 
 class TopLevelTest(TestCase):
@@ -26,9 +32,10 @@ class TopLevelTest(TestCase):
                                'pages': ["d.com/page1", "d.com/page2"]})
 
     def test_main(self):
+        cli_args = FakeCliArgs('0', '2')
         stdout_ = sys.stdout
         sys.stdout = io.StringIO()
-        main(['daddicts_spider', '0', '2'])
+        main(cli_args)
         main_out = sys.stdout.getvalue()
         sys.stdout = stdout_
         self.assertGreaterEqual(main_out.count('./download/file.php?id='), 2)
@@ -101,10 +108,3 @@ class DAddictsSpiderTest(TestCase):
 
     def test_next(self):
         self.assertIn('/download/file.php?id=', next(DAddictsSpider(0)).pop())
-
-
-class MainSpiderTest(TestCase):
-    def test_maybe_get_delay(self):
-        maybe_get_delay = MainSpider.maybe_get_delay
-        self.assertIsNone(maybe_get_delay(['daddicts_spider']))
-        self.assertEqual(maybe_get_delay(['daddicts_spider', '6']), 6)

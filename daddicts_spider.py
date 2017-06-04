@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+import argparse
 import re
-import sys
 import urllib
 
 from itertools import groupby
@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
 
-from util.monad.either import either, Left, Right
+from lib.monad.either import either, Left, Right
 
 
 def unsorted_group_by(coll, fun):
@@ -155,27 +155,17 @@ class DAddictsSpider(AbstractSpider):
         return links_to_files_of_interest
 
 
-class MainSpider(DAddictsSpider):
-    def __init__(self, cmd_line_args):
-        super().__init__(self.maybe_get_delay(cmd_line_args),
-                         self.maybe_take_some(cmd_line_args))
-
-    @staticmethod
-    def maybe_get_delay(cmd_line_args):
-        if len(cmd_line_args) > 1:
-            return int(cmd_line_args[1])
-
-    @staticmethod
-    def maybe_take_some(cmd_line_args):
-        if len(cmd_line_args) > 2:
-            return int(cmd_line_args[2])
-
-
-def main(cmd_line_args):
-    for sub_links in MainSpider(cmd_line_args):
+def main(cli_args):
+    delay, take = int(cli_args.delay), int(cli_args.take)
+    for sub_links in DAddictsSpider(delay, take):
         for sub_link in sub_links:
             print(sub_link)
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    parser = argparse.ArgumentParser()
+    add_cli_arg = parser.add_argument
+    add_cli_arg('-d', '--delay', type=int, help='Delay between HTTP requests')
+    add_cli_arg('-t', '--take', type=int, help='Take at least and around n links')
+    cli_args = parser.parse_args()
+    main(cli_args)
