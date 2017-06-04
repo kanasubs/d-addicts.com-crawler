@@ -11,7 +11,8 @@ from abc import ABC, abstractmethod, abstractclassmethod
 from bs4 import BeautifulSoup
 from reppy.robots import Robots
 from reppy.exceptions import ReppyException
-from fn.monad import Option
+
+from util.monad.either import either, Left, Right
 
 
 def unsorted_group_by(coll, fun):
@@ -31,8 +32,7 @@ class FileLinkStore(object):
     def update(self, links_to_files_of_interest):
         links_to_files_of_interest -= self.visited_links
         self.visited_links |= links_to_files_of_interest
-        res = links_to_files_of_interest
-        return res
+        return links_to_files_of_interest
 
     def can_take(self):
         if self.take is not None:
@@ -42,14 +42,12 @@ class FileLinkStore(object):
 
 
 class AbstractSpider(ABC):
-    default_delay = 61
+    default_delay = 60
 
-    def __iter__(self):
-        return self
+    def __iter__(self): return self
 
     @abstractmethod
-    def __next__(self):
-        self.take += 1
+    def __next__(self): self.take += 1
 
     @staticmethod
     def download(link):
@@ -64,8 +62,7 @@ class AbstractSpider(ABC):
         return crawl_
 
     @abstractclassmethod
-    def extract_links_of_interest(cls, html_page):
-        pass
+    def extract_links_of_interest(cls, html_page): pass
 
     @staticmethod
     def tag_file_or_page_link(link):
@@ -90,18 +87,17 @@ class AbstractSpider(ABC):
         robots_url = urllib.parse.urljoin(url, 'robots.txt')
         try:
             robots = Robots.fetch(robots_url)
-            delay = robots.agent('None').delay
+            delay = Right(robots.agent('None').delay)
         except ReppyException:
-            delay = None
+            delay = Left(None)
 
         return delay
 
     @classmethod
     def choose_delay(cls, user_delay, url):
-        return Option \
-                  .from_value(user_delay) \
-                  .or_call(cls.get_robots_delay, url) \
-                  .get_or(cls.default_delay)
+        return either(user_delay) \
+               .or_call(cls.get_robots_delay, url) \
+               .get_or(Left(cls.default_delay))
 
 
 class DAddictsSpider(AbstractSpider):
@@ -110,7 +106,8 @@ class DAddictsSpider(AbstractSpider):
     file_of_interest_pattern = re.compile(re.escape(file_of_interest_subs))
 
     def __init__(self, delay=None, take=None):
-        self.delay = self.choose_delay(delay, 'http://www.d-addicts.com')
+        delay_either = self.choose_delay(delay, 'http://www.d-addicts.com')
+        self.delay = delay_either.getValue()
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
         self.topic_links = iter(self.crawl(self.base_url))
         self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
@@ -119,8 +116,8 @@ class DAddictsSpider(AbstractSpider):
     @classmethod
     def extract_links_of_interest(cls, html_page):
         soup = BeautifulSoup(html_page, "html5lib")
-        links = set()
 
+        links = set()
         for link in soup.find_all('a', href=cls.file_of_interest_pattern):
             links.add(link['href'])
 

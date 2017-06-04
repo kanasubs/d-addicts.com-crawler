@@ -8,6 +8,8 @@ from reppy.exceptions import ReppyException
 
 from daddicts_spider import *
 
+from util.monad.either import Left, Right
+
 
 class FakeRobots():
     def fetch(self, url):
@@ -63,19 +65,21 @@ class AbstractSpiderTest(TestCase):
 
     def test_robots_delay(self):  # TODO impl. monad either to test l/r branch
         get_robots_delay = AbstractSpider.get_robots_delay
-        self.assertGreaterEqual(get_robots_delay('http://www.d-addicts.com'), 0)
+        robots_delay = get_robots_delay('http://www.d-addicts.com')
+        self.assertTrue(isinstance(robots_delay, Right))
+        self.assertGreaterEqual(robots_delay.getValue(), 0)
         with mock.patch('daddicts_spider.Robots', new_callable=FakeRobots):
-            self.assertEqual(get_robots_delay('http://www.d-addicts.com'), None)
+            self.assertEqual(get_robots_delay('http://www.d-addicts.com'), Left(None))
 
     def test_choose_delay(self):
         get_robots_delay = AbstractSpider.get_robots_delay
         choose_delay = AbstractSpider.choose_delay
         default_delay = AbstractSpider.default_delay
-        self.assertEqual(choose_delay(0, 'http://www.d-addicts.com'), 0)
-        self.assertEqual(choose_delay(None, 'http://www.d-addicts.com'),
-                         get_robots_delay('http://www.d-addicts.com'))
-        self.assertEqual(choose_delay(0, 'bad_website'), 0)
-        self.assertEqual(choose_delay(None, 'bad_website'), default_delay)
+        self.assertEqual(choose_delay(0, 'http://www.d-addicts.com'), Right(0))
+        self.assertEqual(choose_delay(None, 'http://www.d-addicts.com').getValue(),
+                         get_robots_delay('http://www.d-addicts.com').getValue())
+        self.assertEqual(choose_delay(0, 'bad_website'), Right(0))
+        self.assertEqual(choose_delay(None, 'bad_website'), Left(default_delay))
 
 
 class DAddictsSpiderTest(TestCase):
