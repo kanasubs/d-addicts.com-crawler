@@ -7,6 +7,7 @@ import urllib
 from itertools import groupby
 from time import sleep
 from abc import ABC, abstractmethod, abstractclassmethod
+from furl import furl
 
 from bs4 import BeautifulSoup
 from reppy.robots import Robots
@@ -57,8 +58,9 @@ class AbstractSpider(ABC):
     def with_crawl_fn(cls, crawl_fn):
         def crawl_(link):
             html_page = cls.download(link)
-            links = crawl_fn(html_page)
-            return cls.filter_useful_links(links)
+            rel_links = crawl_fn(html_page)
+            links = set(map(cls.complete_link, rel_links))
+            return links
         return crawl_
 
     @abstractclassmethod
@@ -112,6 +114,11 @@ class DAddictsSpider(AbstractSpider):
         self.topic_links = iter(self.crawl(self.base_url))
         self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
         self.file_link_store = FileLinkStore(take)
+
+    @staticmethod
+    def complete_link(rel_link):
+        original_link = furl('http://www.d-addicts.com/forums/').join(rel_link)
+        return original_link.remove(['sid']).url
 
     @classmethod
     def extract_links_of_interest(cls, html_page):

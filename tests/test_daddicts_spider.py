@@ -38,7 +38,8 @@ class TopLevelTest(TestCase):
         main(cli_args)
         main_out = sys.stdout.getvalue()
         sys.stdout = stdout_
-        self.assertGreaterEqual(main_out.count('./download/file.php?id='), 2)
+        link_common_part = 'http://www.d-addicts.com/forums/download/file.php?id='
+        self.assertGreaterEqual(main_out.count(link_common_part), 2)
 
 
 class FileLinkStoreTest(TestCase):
@@ -105,6 +106,11 @@ class DAddictsSpiderTest(TestCase):
             self.assertGreater(len(links), 8)
             for link in links:
                 self.assertIn(DAddictsSpider.file_of_interest_subs, link)
+
+    def test_complete_link(self):
+        rel_link = './download/file.php?id=51885&sid=09fccbbc6636ee1d35b7f021384574ce'
+        link = 'http://www.d-addicts.com/forums/download/file.php?id=51885'
+        self.assertEqual(DAddictsSpider.complete_link(rel_link), link)
 
     def test_next(self):
         self.assertIn('/download/file.php?id=', next(DAddictsSpider(0)).pop())
