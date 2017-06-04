@@ -80,11 +80,6 @@ class AbstractSpider(ABC):
         return grouped_links
 
     @staticmethod
-    def filter_useful_links(links):
-        """PASSTHROUGH STUB"""
-        return links
-
-    @staticmethod
     def get_robots_delay(url):
         robots_url = urllib.parse.urljoin(url, 'robots.txt')
         try:
