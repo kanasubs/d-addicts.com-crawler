@@ -165,9 +165,12 @@ def main(cli_args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    ArgParser = argparse.ArgumentParser
+    HelpFormatter = argparse.HelpFormatter
+    parser = ArgParser(prog='daddicts_spider.py',
+                       formatter_class=lambda prog: HelpFormatter(prog, max_help_position=27))
     add_cli_arg = parser.add_argument
-    add_cli_arg('-d', '--delay', type=int, help='Delay between HTTP requests')
-    add_cli_arg('-t', '--take', type=int, help='Take at least and around n links')
+    add_cli_arg('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
+    add_cli_arg('-t', '--take', type=int, help="take at least and around 'n' links.")
     cli_args = parser.parse_args()
     main(cli_args)

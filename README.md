@@ -30,7 +30,13 @@ for sub_links in DAddictsSpider(delay_between_requests, take_at_least_n_links):
 
 #### As a CLI program
 ```
-./daddicts_spider.py --delay <opt_delay_in_secs> --take <take_at_least_n_links>
+> ./daddicts_spider.py --help
+usage: daddicts_spider.py [-h] [-d DELAY] [-t TAKE]
+
+optional arguments:
+  -h, --help               show this help message and exit
+  -d DELAY, --delay DELAY  delay in seconds between HTTP requests
+  -t TAKE, --take TAKE     take at least and around 'n' links.
 ```
 
 ### Testing
