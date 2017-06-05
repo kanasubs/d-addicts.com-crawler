@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import sys
 import re
 import urllib
 
@@ -165,12 +166,13 @@ def main(cli_args):
 
 
 if __name__ == '__main__':
-    ArgParser = argparse.ArgumentParser
-    HelpFormatter = argparse.HelpFormatter
-    parser = ArgParser(prog='daddicts_spider.py',
-                       formatter_class=lambda prog: HelpFormatter(prog, max_help_position=27))
-    add_cli_arg = parser.add_argument
-    add_cli_arg('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
-    add_cli_arg('-t', '--take', type=int, help="take at least and around 'n' links.")
-    cli_args = parser.parse_args()
-    main(cli_args)
+    if not sys.flags.inspect:  # prevent following code from running in inteactive mode
+        ArgParser = argparse.ArgumentParser
+        HelpFormatter = argparse.HelpFormatter
+        formatter_class_factory = lambda prog: HelpFormatter(prog, max_help_position=27)
+        parser = ArgParser(prog='daddicts_spider.py', formatter_class=formatter_class_factory)
+        add_cli_arg = parser.add_argument
+        add_cli_arg('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
+        add_cli_arg('-t', '--take', type=int, help="take at least and around 'n' links.")
+        cli_args = parser.parse_args()
+        main(cli_args)
