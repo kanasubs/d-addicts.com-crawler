@@ -22,7 +22,7 @@ from daddicts_spider import DAddictsSpider
 
 all_sub_links = set()
 delay_between_requests = 6  # optional arg to DAddictsSpider
-take_at_least_n_links = 10    # optional arg to DAddictsSpider
+take_at_least_n_links = 10  # optional arg to DAddictsSpider
 for sub_links in DAddictsSpider(delay_between_requests, take_at_least_n_links):
     print(sub_links)
     all_sub_links |= sub_links

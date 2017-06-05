@@ -135,7 +135,7 @@ class DAddictsSpider(ABCSpider):
         next_sibling = jp_subs_heading.next_sibling
         while next_sibling:
             jp_subs_link = next_sibling.find('a')
-            if jp_subs_link and jp_subs_link != -1:  # TODO find why ret=-1 ?
+            if jp_subs_link and jp_subs_link != -1:
                 jp_subs_href = jp_subs_link.get('href')
                 links.add(jp_subs_href)
             next_sibling = next_sibling.next_sibling
@@ -159,7 +159,8 @@ class DAddictsSpider(ABCSpider):
 
 
 def main(cli_args):
-    delay, take = int(cli_args.delay), int(cli_args.take)
+    delay, take = cli_args.delay, cli_args.take
+    delay, take = delay and int(delay), take and int(take)
     for sub_links in DAddictsSpider(delay, take):
         for sub_link in sub_links:
             print(sub_link)

@@ -8,8 +8,8 @@ from pymonad.Either import Either, Left as PymonadLeft, Right as PymonadRight
 
 def either(value, checker=partial(is_not, None)):
     if isinstance(value, Either):
-        # Option(Full) -> Full
-        # Option(Empty) -> Empty
+        # either(Righty/Right) -> Right
+        # either(Lefty/Left)   -> Left
         return value
 
     return Right(value) if checker(value) else Left(None)
