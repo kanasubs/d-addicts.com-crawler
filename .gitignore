@@ -12,3 +12,4 @@ pom.xml.asc
 *.swp
 __pycache__
 .coverage
+daddicts_page_links.txt

@@ -36,7 +36,8 @@ usage: daddicts_spider.py [-h] [-d DELAY] [-t TAKE]
 optional arguments:
   -h, --help               show this help message and exit
   -d DELAY, --delay DELAY  delay in seconds between HTTP requests
-  -t TAKE, --take TAKE     take at least and around 'n' links.
+  -t TAKE, --take TAKE     take at least and around 'n' links. Will resume
+                           from last point when calling the program again.
 ```
 
 ### Testing

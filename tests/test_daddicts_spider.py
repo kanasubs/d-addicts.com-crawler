@@ -1,5 +1,6 @@
 import sys
 import io
+import uuid
 
 from unittest import mock, TestCase
 
@@ -40,6 +41,36 @@ class TopLevelTest(TestCase):
         sys.stdout = stdout_
         link_common_part = 'http://www.d-addicts.com/forums/download/file.php?id='
         self.assertGreaterEqual(main_out.count(link_common_part), 2)
+
+
+class PathTest(TestCase):
+    def test_is_file_with_content(self):
+        path = Path(str(uuid.uuid4()))
+        self.assertFalse(path.is_file_with_content())
+        path.touch()
+        self.assertFalse(path.is_file_with_content())
+        path.write_text('random content')
+        self.assertTrue(path.is_file_with_content())
+        path.unlink()
+
+
+class FilePersistableSetTest(TestCase):
+    def test_primitive_repr(self):
+        rand_filename = str(uuid.uuid4())
+        file_persistable_set = FilePersistableSet(rand_filename, set())
+        primitive_repr = file_persistable_set.primitive_repr()
+        self.assertEqual(primitive_repr, "")
+        file_persistable_set = FilePersistableSet(rand_filename, {1})
+        primitive_repr = file_persistable_set.primitive_repr()
+        self.assertEqual(primitive_repr, '{1}')
+
+    def integration_test(self):
+        rand_filename = str(uuid.uuid4())
+        file_persistable_set = FilePersistableSet(rand_filename, {1, 2})
+        self.assertFalse(file_persistable_set.retrieve())
+        file_persistable_set.persist()
+        self.assertEqual(file_persistable_set.retrieve(), {1, 2})
+        Path(rand_filename).unlink()
 
 
 class FileLinkStoreTest(TestCase):

@@ -4,6 +4,8 @@ import argparse
 import sys
 import re
 import urllib
+import ast
+import pathlib
 
 from itertools import groupby
 from time import sleep
@@ -24,6 +26,41 @@ def unsorted_group_by(coll, fun):
     for k, val in group_pairs:
         groups[k] = list(val)
     return groups
+
+
+class Path(object):
+    # subclass type(pathlib.Path()) wont do for Path to be subclassed due to lay out conflict
+    def __init__(self, file_path):
+        path = pathlib.Path(file_path)
+        self.read_text = path.read_text
+        self.write_text = path.write_text
+        self.is_file = path.is_file
+        self.touch = path.touch
+        self.stat = path.stat
+        self.unlink = path.unlink
+
+    def is_file_with_content(self):
+        return self.is_file() and self.stat().st_size > 0
+
+
+class FilePersistableSet(set, Path):
+    def __init__(self, file_path, init_set):
+        Path.__init__(self, file_path)
+        set.__init__(self, self.retrieve() or init_set)
+
+    def __iter__(self): return self
+
+    def __next__(self): return self.pop()
+
+    def primitive_repr(self):
+        return repr(set(self)) if self else ""
+
+    def persist(self):
+        self.write_text(self.primitive_repr())
+
+    def retrieve(self):
+        if self.is_file_with_content():
+            return ast.literal_eval(self.read_text())
 
 
 class FileLinkStore(object):
@@ -107,7 +144,8 @@ class DAddictsSpider(ABCSpider):
         delay_either = self.choose_delay(delay, 'http://www.d-addicts.com')
         self.delay = delay_either.getValue()
         self.crawl = self.with_crawl_fn(self.extract_topic_links)
-        self.topic_links = iter(self.crawl(self.base_url))
+        topic_links = self.crawl(self.base_url)
+        self.topic_links = iter(FilePersistableSet('daddicts_page_links.txt', topic_links))
         self.crawl = self.with_crawl_fn(self.extract_links_of_interest)
         self.file_link_store = FileLinkStore(take)
 
@@ -152,7 +190,11 @@ class DAddictsSpider(ABCSpider):
                 links_to_files_of_interest = self.file_link_store.update(links)
             except urllib.error.URLError:
                 pass
+            except StopIteration:
+                self.topic_links.persist()
+                raise StopIteration()
         else:
+            self.topic_links.persist()
             raise StopIteration()
 
         return links_to_files_of_interest
@@ -167,6 +209,8 @@ def main(cli_args):
 
 
 if __name__ == '__main__':
+    take_description = "take at least and around 'n' links. " + \
+                       "Will resume from last point when calling the program again."
     if not sys.flags.inspect:  # prevent following code from running in inteactive mode
         ArgParser = argparse.ArgumentParser
         HelpFormatter = argparse.HelpFormatter
@@ -174,6 +218,6 @@ if __name__ == '__main__':
         parser = ArgParser(prog='daddicts_spider.py', formatter_class=formatter_class_factory)
         add_cli_arg = parser.add_argument
         add_cli_arg('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
-        add_cli_arg('-t', '--take', type=int, help="take at least and around 'n' links.")
+        add_cli_arg('-t', '--take', type=int, help=take_description)
         cli_args = parser.parse_args()
         main(cli_args)
