@@ -24,7 +24,6 @@ class FakeCliArgs():
 
 
 class TopLevelTest(TestCase):
-
     def test_unsorted_group_by(self):
         tag_file_or_page_link = ABCSpider.tag_file_or_page_link
         links = {"d.com/1file.php?id=", "d.com/page1", "d.com/page2"}
@@ -55,14 +54,14 @@ class PathTest(TestCase):
 
 
 class FilePersistableSetTest(TestCase):
-    def test_primitive_repr(self):
+    def test_repr(self):
         rand_filename = str(uuid.uuid4())
         file_persistable_set = FilePersistableSet(rand_filename, set())
-        primitive_repr = file_persistable_set.primitive_repr()
-        self.assertEqual(primitive_repr, "")
+        file_persistable_set_repr = repr(file_persistable_set)
+        self.assertEqual(file_persistable_set_repr, "")
         file_persistable_set = FilePersistableSet(rand_filename, {1})
-        primitive_repr = file_persistable_set.primitive_repr()
-        self.assertEqual(primitive_repr, '{1}')
+        file_persistable_set_repr = repr(file_persistable_set)
+        self.assertEqual(file_persistable_set_repr, '{1}')
 
     def integration_test(self):
         rand_filename = str(uuid.uuid4())

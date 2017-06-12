@@ -29,7 +29,6 @@ def unsorted_group_by(coll, fun):
 
 
 class Path(object):
-    # subclass type(pathlib.Path()) wont do for Path to be subclassed due to lay out conflict
     def __init__(self, file_path):
         path = pathlib.Path(file_path)
         self.read_text = path.read_text
@@ -43,20 +42,26 @@ class Path(object):
         return self.is_file() and self.stat().st_size > 0
 
 
-class FilePersistableSet(set, Path):
-    def __init__(self, file_path, init_set):
-        Path.__init__(self, file_path)
-        set.__init__(self, self.retrieve() or init_set)
-
-    def __iter__(self): return self
+class Set(object):
+    def __init__(self, init_set): self.set_ = init_set
 
     def __next__(self): return self.pop()
 
-    def primitive_repr(self):
-        return repr(set(self)) if self else ""
+    def __iter__(self): return self
+
+    def pop(self): return self.set_.pop()
+
+
+class FilePersistableSet(Set, Path):
+    def __init__(self, file_path, init_set):
+        Path.__init__(self, file_path)
+        Set.__init__(self, self.retrieve() or init_set)
+
+    def __repr__(self):
+        return repr(self.set_) if self.set_ else ""
 
     def persist(self):
-        self.write_text(self.primitive_repr())
+        self.write_text(repr(self))
 
     def retrieve(self):
         if self.is_file_with_content():
