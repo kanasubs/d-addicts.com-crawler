@@ -1,3 +1,7 @@
+# files rendering my project HTML!
+tests/resources/d_addicts_base_page.html text
+tests/resources/viewtopic.php?t=99358 text
+
 # source: https://github.com/alexkaratarakis/gitattributes
 
 #common settings that generally should always be used with your language specific settings
