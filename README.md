@@ -6,7 +6,7 @@ d-addicts.com-crawler
 [![Code Climate](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler/badges/gpa.svg)](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler)
 [![Issue Count](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler/badges/issue_count.svg)](https://codeclimate.com/github/kanasubs/d-addicts.com-crawler)
 
-A Python web spider library and CLI program to crawl for Japanese subtitles links in [d-addicts.com](https://www.d-addicts.com/).
+A Python web spider library and CLI utility to crawl for Japanese subtitles links in [d-addicts.com](https://www.d-addicts.com/).
 
 ### Install dependencies
 -------
@@ -31,13 +31,15 @@ for sub_links in DAddictsSpider(delay_between_requests, take_at_least_n_links):
 #### As a CLI program
 ```
 > ./daddicts_spider.py --help
-usage: daddicts_spider.py [-h] [-d DELAY] [-t TAKE]
+usage: daddicts_spider.py [-h] [-d DELAY] [-t TAKE | -c CRAWL]
 
 optional arguments:
   -h, --help               show this help message and exit
   -d DELAY, --delay DELAY  delay in seconds between HTTP requests
   -t TAKE, --take TAKE     take at least and around 'n' links. Will resume
                            from last point when calling the program again.
+  -c CRAWL, --crawl CRAWL  Crawl 'n' times. Will resume from last point when
+                           calling the program again.
 ```
 
 ### Testing

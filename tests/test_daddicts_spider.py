@@ -17,10 +17,21 @@ class FakeRobots():
         raise ReppyException({'obj': self, 'url': url})
 
 
-class FakeCliArgs():
-    def __init__(self, delay, take):
+class FakeCLIArgs():
+    def __init__(self, delay=None, take=None, crawl=None):
         self.delay = delay
         self.take = take
+        self.crawl = crawl
+
+
+class MemStdout(object):
+    def __enter__(self):
+        self.stdout = sys.stdout
+        sys.stdout = io.StringIO()
+        return sys.stdout
+
+    def __exit__(self, *_):
+        sys.stdout = self.stdout
 
 
 class TopLevelTest(TestCase):
@@ -31,15 +42,23 @@ class TopLevelTest(TestCase):
                               {'subs': ["d.com/1file.php?id="],
                                'pages': ["d.com/page1", "d.com/page2"]})
 
-    def test_main(self):
-        cli_args = FakeCliArgs('0', '2')
-        stdout_ = sys.stdout
-        sys.stdout = io.StringIO()
-        main(cli_args)
-        main_out = sys.stdout.getvalue()
-        sys.stdout = stdout_
-        link_common_part = 'http://www.d-addicts.com/forums/download/file.php?id='
-        self.assertGreaterEqual(main_out.count(link_common_part), 2)
+    def test_take_opt_main(self):
+        cli_args = FakeCLIArgs(delay='0', take='2')
+        with MemStdout() as stdo:
+            main(cli_args)
+            main_out = stdo.getvalue()
+            link_common_part = 'http://www.d-addicts.com/forums/download/file.php?id='
+            self.assertGreaterEqual(main_out.count(link_common_part), 2)
+
+    def test_crawl_opt_main(self):
+        cli_args = FakeCLIArgs(delay='0', crawl='1')
+        file_persistable_set = FilePersistableSet('daddicts_page_links.txt', set())
+        with MemStdout():
+            main(cli_args)
+            count_pages_before = len(file_persistable_set.retrieve())
+            main(cli_args)
+            count_pages_after = len(file_persistable_set.retrieve())
+            self.assertEqual(count_pages_before - count_pages_after, 1)
 
 
 class PathTest(TestCase):

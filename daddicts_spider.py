@@ -7,7 +7,7 @@ import urllib
 import ast
 import pathlib
 
-from itertools import groupby
+from itertools import groupby, islice
 from time import sleep
 from abc import ABC, abstractmethod, abstractclassmethod
 from furl import furl
@@ -49,6 +49,8 @@ class Set(object):
 
     def __iter__(self): return self
 
+    def __len__(self): return len(self.set_)
+
     def pop(self): return self.set_.pop()
 
 
@@ -66,6 +68,7 @@ class FilePersistableSet(Set, Path):
     def retrieve(self):
         if self.is_file_with_content():
             return ast.literal_eval(self.read_text())
+        return set()
 
 
 class FileLinkStore(object):
@@ -202,13 +205,20 @@ class DAddictsSpider(ABCSpider):
             self.topic_links.persist()
             raise StopIteration()
 
+        # Continuously persisting to avoid not saving with 'for' exit
+        # triggered by islice instead of iter __next__ with StopIteration.
+        # Might be better anyway as continuously persisting will support
+        # user interruption and then resuming from that point.
+        self.topic_links.persist()
+
         return links_to_files_of_interest
 
 
 def main(cli_args):
-    delay, take = cli_args.delay, cli_args.take
-    delay, take = delay and int(delay), take and int(take)
-    for sub_links in DAddictsSpider(delay, take):
+    delay, take, crawl = cli_args.delay, cli_args.take, cli_args.crawl
+    delay, take, crawl = delay and int(delay), take and int(take), crawl and int(crawl)
+    crawl_times = crawl or sys.maxsize
+    for sub_links in islice(DAddictsSpider(delay, take), crawl_times):
         for sub_link in sub_links:
             print(sub_link)
 
@@ -216,13 +226,17 @@ def main(cli_args):
 if __name__ == '__main__':
     take_description = "take at least and around 'n' links. " + \
                        "Will resume from last point when calling the program again."
-    if not sys.flags.inspect:  # prevent following code from running in inteactive mode
+    crawl_description = "Crawl 'n' times. " + \
+                        "Will resume from last point when calling the program again."
+    if not sys.flags.inspect:  # prevent following code from running in interactive mode
         ArgParser = argparse.ArgumentParser
         HelpFormatter = argparse.HelpFormatter
         formatter_class_factory = lambda prog: HelpFormatter(prog, max_help_position=27)
         parser = ArgParser(prog='daddicts_spider.py', formatter_class=formatter_class_factory)
         add_cli_arg = parser.add_argument
         add_cli_arg('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
-        add_cli_arg('-t', '--take', type=int, help=take_description)
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument('-t', '--take', type=int, help=take_description)
+        group.add_argument('-c', '--crawl', type=int, help=crawl_description)
         cli_args = parser.parse_args()
         main(cli_args)
