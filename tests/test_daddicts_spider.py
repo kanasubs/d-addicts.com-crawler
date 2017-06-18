@@ -17,14 +17,27 @@ class FakeRobots():
         raise ReppyException({'obj': self, 'url': url})
 
 
-class FakeCLIArgs():
+class FakeCLIArgs(object):
+    def __init__(self, fake_cli_args):
+        self.fake_cli_args = fake_cli_args
+
+    def __enter__(self):
+        self.argv = sys.argv
+        sys.argv = ['daddicts_spider.py'] + self.fake_cli_args
+        return self.argv
+
+    def __exit__(self, *_):
+        sys.argv = self.argv
+
+
+class FakeparsedCLIArgs():
     def __init__(self, delay=None, take=None, crawl=None):
         self.delay = delay
         self.take = take
         self.crawl = crawl
 
 
-class MemStdout(object):
+class MemStdOut(object):
     def __enter__(self):
         self.stdout = sys.stdout
         sys.stdout = io.StringIO()
@@ -43,17 +56,17 @@ class TopLevelTest(TestCase):
                                'pages': ["d.com/page1", "d.com/page2"]})
 
     def test_take_opt_main(self):
-        cli_args = FakeCLIArgs(delay='0', take='2')
-        with MemStdout() as stdo:
+        cli_args = FakeparsedCLIArgs(delay='0', take='2')
+        with MemStdOut() as stdo:
             main(cli_args)
             main_out = stdo.getvalue()
             link_common_part = 'http://www.d-addicts.com/forums/download/file.php?id='
             self.assertGreaterEqual(main_out.count(link_common_part), 2)
 
     def test_crawl_opt_main(self):
-        cli_args = FakeCLIArgs(delay='0', crawl='1')
+        cli_args = FakeparsedCLIArgs(delay='0', crawl='1')
         file_persistable_set = FilePersistableSet('daddicts_page_links.txt', set())
-        with MemStdout():
+        with MemStdOut():
             main(cli_args)
             count_pages_before = len(file_persistable_set.retrieve())
             main(cli_args)
@@ -163,3 +176,25 @@ class DAddictsSpiderTest(TestCase):
 
     def test_next(self):
         self.assertIn('/download/file.php?id=', next(DAddictsSpider(0)).pop())
+
+
+class AppArgParserTest(TestCase):
+    def test_each_arg(self):
+        with FakeCLIArgs(['--crawl', '5']):
+            cli_args = AppArgParser().parse_args()
+            self.assertEqual(cli_args.crawl, 5)
+
+        with FakeCLIArgs(['--take', '2']):
+            cli_args = AppArgParser().parse_args()
+            self.assertEqual(cli_args.take, 2)
+
+    def test_arg_combinations(self):
+        with FakeCLIArgs(['--delay', '1', '--crawl', '5']):
+            cli_args = AppArgParser().parse_args()
+            self.assertEqual(cli_args.delay, 1)
+            self.assertEqual(cli_args.crawl, 5)
+
+        with FakeCLIArgs(['--delay', '1', '--take', '2']):
+            cli_args = AppArgParser().parse_args()
+            self.assertEqual(cli_args.delay, 1)
+            self.assertEqual(cli_args.take, 2)

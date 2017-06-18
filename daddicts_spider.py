@@ -45,22 +45,22 @@ class Path(object):
 class Set(object):
     def __init__(self, init_set): self.set_ = init_set
 
+    def pop(self): return self.set_.pop()
+
     def __next__(self): return self.pop()
 
     def __iter__(self): return self
 
     def __len__(self): return len(self.set_)
 
-    def pop(self): return self.set_.pop()
+    def __repr__(self):
+        return repr(self.set_) if self.set_ else ""
 
 
 class FilePersistableSet(Set, Path):
     def __init__(self, file_path, init_set):
         Path.__init__(self, file_path)
         Set.__init__(self, self.retrieve() or init_set)
-
-    def __repr__(self):
-        return repr(self.set_) if self.set_ else ""
 
     def persist(self):
         self.write_text(repr(self))
@@ -82,10 +82,7 @@ class FileLinkStore(object):
         return links_to_files_of_interest
 
     def can_take(self):
-        if self.take is not None:
-            return len(self.visited_links) < self.take
-        else:
-            return True
+        return (self.take is None) or len(self.visited_links) < self.take
 
 
 class ABCSpider(ABC):
@@ -214,6 +211,21 @@ class DAddictsSpider(ABCSpider):
         return links_to_files_of_interest
 
 
+class AppArgParser(argparse.ArgumentParser):
+    def __init__(self):
+        take_description = "take at least and around 'n' links. " + \
+                           "Will resume from last point when calling the program again."
+        crawl_description = "Crawl 'n' times. " + \
+                            "Will resume from last point when calling the program again."
+        HelpFormatter = argparse.HelpFormatter
+        formatter_class_factory = lambda prog: HelpFormatter(prog, max_help_position=27)
+        super().__init__(prog='daddicts_spider.py', formatter_class=formatter_class_factory)
+        self.add_argument('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
+        group = self.add_mutually_exclusive_group()
+        group.add_argument('-t', '--take', type=int, help=take_description)
+        group.add_argument('-c', '--crawl', type=int, help=crawl_description)
+
+
 def main(cli_args):
     delay, take, crawl = cli_args.delay, cli_args.take, cli_args.crawl
     delay, take, crawl = delay and int(delay), take and int(take), crawl and int(crawl)
@@ -224,19 +236,6 @@ def main(cli_args):
 
 
 if __name__ == '__main__':
-    take_description = "take at least and around 'n' links. " + \
-                       "Will resume from last point when calling the program again."
-    crawl_description = "Crawl 'n' times. " + \
-                        "Will resume from last point when calling the program again."
     if not sys.flags.inspect:  # prevent following code from running in interactive mode
-        ArgParser = argparse.ArgumentParser
-        HelpFormatter = argparse.HelpFormatter
-        formatter_class_factory = lambda prog: HelpFormatter(prog, max_help_position=27)
-        parser = ArgParser(prog='daddicts_spider.py', formatter_class=formatter_class_factory)
-        add_cli_arg = parser.add_argument
-        add_cli_arg('-d', '--delay', type=int, help="delay in seconds between HTTP requests")
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument('-t', '--take', type=int, help=take_description)
-        group.add_argument('-c', '--crawl', type=int, help=crawl_description)
-        cli_args = parser.parse_args()
+        cli_args = AppArgParser().parse_args()
         main(cli_args)
