@@ -228,7 +228,6 @@ class AppArgParser(argparse.ArgumentParser):
 
 def main(cli_args):
     delay, take, crawl = cli_args.delay, cli_args.take, cli_args.crawl
-    delay, take, crawl = delay and int(delay), take and int(take), crawl and int(crawl)
     crawl_times = crawl or sys.maxsize
     for sub_links in islice(DAddictsSpider(delay, take), crawl_times):
         for sub_link in sub_links:

@@ -56,7 +56,7 @@ class TopLevelTest(TestCase):
                                'pages': ["d.com/page1", "d.com/page2"]})
 
     def test_take_opt_main(self):
-        cli_args = FakeparsedCLIArgs(delay='0', take='2')
+        cli_args = FakeparsedCLIArgs(delay=0, take=2)
         with MemStdOut() as stdo:
             main(cli_args)
             main_out = stdo.getvalue()
@@ -64,7 +64,7 @@ class TopLevelTest(TestCase):
             self.assertGreaterEqual(main_out.count(link_common_part), 2)
 
     def test_crawl_opt_main(self):
-        cli_args = FakeparsedCLIArgs(delay='0', crawl='1')
+        cli_args = FakeparsedCLIArgs(delay=0, crawl=1)
         file_persistable_set = FilePersistableSet('daddicts_page_links.txt', set())
         with MemStdOut():
             main(cli_args)
