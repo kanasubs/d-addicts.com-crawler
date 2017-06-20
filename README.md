@@ -38,7 +38,7 @@ optional arguments:
   -d DELAY, --delay DELAY  delay in seconds between HTTP requests
   -t TAKE, --take TAKE     take at least and around 'n' links. Will resume
                            from last point when calling the program again.
-  -c CRAWL, --crawl CRAWL  Crawl 'n' times. Will resume from last point when
+  -c CRAWL, --crawl CRAWL  crawl 'n' times. Will resume from last point when
                            calling the program again.
 ```
 

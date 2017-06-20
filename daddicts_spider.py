@@ -235,7 +235,6 @@ def main(cli_args):
             print(sub_link)
 
 
-if __name__ == '__main__':
-    if not sys.flags.inspect:  # prevent following code from running in interactive mode
-        cli_args = AppArgParser().parse_args()
-        main(cli_args)
+if (__name__ == '__main__') and not sys.flags.interactive:
+    cli_args = AppArgParser().parse_args()
+    main(cli_args)
