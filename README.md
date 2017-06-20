@@ -50,4 +50,4 @@ optional arguments:
 -------
 Copyright (C) 2017 Carlos C. Fontes.
 
-Licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Licensed under the [ISC License](https://opensource.org/licenses/ISC).
