@@ -1,6 +1,5 @@
 # files rendering my project HTML!
-tests/resources/d_addicts_base_page.html text
-tests/resources/viewtopic.php?t=99358 text
+tests/resources/* linguist-vendored
 
 # source: https://github.com/alexkaratarakis/gitattributes
 

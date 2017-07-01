@@ -28,7 +28,7 @@ for sub_links in DAddictsSpider(delay_between_requests, take_at_least_n_links):
     all_sub_links |= sub_links
 ```
 
-#### As a CLI program
+#### As a CLI utility
 ```
 > ./daddicts_spider.py --help
 usage: daddicts_spider.py [-h] [-d DELAY] [-t TAKE | -c CRAWL]
