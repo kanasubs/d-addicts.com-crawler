@@ -1,33 +1,33 @@
 language: python
-
-python: "3.6.1"
-
+python: 3.6.1
 notifications:
   email:
     on_success: never
     on_failure: change
-
 addons:
   apt:
     sources: ubuntu-toolchain-r-test
     packages:
-      - gcc-4.8  # for reppy build
-      - g++-4.8  # for reppy build
-
+    - gcc-4.8
+    - g++-4.8
 before_install:
-  - pip install pipreqs
-  - pipreqs . --print
-  - pipreqs . --savepath requirements.txt
-
+- pip install pipreqs
+- pipreqs . --print
+- pipreqs . --savepath requirements.txt
 install:
-  - CC=gcc-4.8 CXX=g++-4.8 pip install html5lib -r requirements.txt
-
+- CC=gcc-4.8 CXX=g++-4.8 pip install html5lib -r requirements.txt
 before_script:
-  - pip install pylama coverage nose
-  - pip install coveralls
-
+- pip install pylama coverage nose
+- pip install coveralls
 script:
-  - pylama
-  - coverage run --source=. --omit=tests/* -m nose
-
+- pylama
+- coverage run --source=. --omit=tests/* -m nose
 after_success: coveralls
+
+deploy:
+  provider: pypi
+  user: "ccfontes"
+  password:
+    secure: "fM+oNDK9m6q3Zn1OG3JS0dvbdecK06i7n2Shr/2UxWE16a6amy78ruXCsSyHRidnGLzZRlLY2f/bOqGGR/fmsu6Mlv/+oswkaXYFQc54znM2B2wNep8NhesW2v3u9Pdtx2zoOX446eLl4RpLXkU9bsDH+p30S7GzDcRqwERMhsCIVY+rXsBFpSRZyoJ1XqWY5yqYae35XDMh7php+Cts6dEwO/znwbRTpetjFIojpPKpr4qFmuVUuNml8vL0eD2gNyv/wlbvvTt5rGL2VzggsZgVJPPs/uN1dhPdbYadj0OtESgMiq9clQbqoDoDb3b/LIHQZu6ixnuHZaVps9/8zmyd0HqJxrnvOeDy5x5VM4MGdIBGKU6xiLWiYqkpLbOVZ/ef4MXeXMg/SrvlXBaARuAntJO7RiW5J+mteMWWb1QDOabkU/fItIXDYWdrw7Gfn/M6K550P7mOhlvXvZ1eZs3pOCgWnaV4a4Z9hzAJBKitYjZJxazlnqq94KLzp4ZD3Oflh4HpC1wazJhRLFxE0BuAnut8iDWZKHZy5cZYjABDt56cTI4BuGXNar6EVNHmrCe0GPJsXN6m8YcqNIuDjcJzwFvuDIV5kKURGXNiKIDQNHR6jo/jDAxF2072R8TnFmmfWUSpnpswCMtno0uMXUNncx4IYEwYnhUccQxxOeE="
+  on:
+    tags: true
